@@ -16,6 +16,11 @@ export const AuthProvider = ({ children }) => {
 
       return true;
     } catch (error) {
+      console.error(
+        "Refresh login failed:",
+        error.response?.data || error.message
+      );
+
       setAccessToken(null);
       setUser(null);
 
@@ -27,7 +32,10 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post("/api/admin/logout");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error(
+        "Logout error:",
+        error.response?.data || error.message
+      );
     } finally {
       setAccessToken(null);
       setUser(null);
