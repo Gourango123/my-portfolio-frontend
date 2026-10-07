@@ -1,4 +1,5 @@
 import { ArrowUp, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -10,7 +11,9 @@ const Footer = () => {
               G<span className="text-cyan-400">R</span>
             </a>
 
-            <p className="mt-2 text-sm text-slate-500">MERN Stack Developer</p>
+            <p className="mt-2 text-sm text-slate-500">
+              MERN Stack Developer
+            </p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -38,6 +41,13 @@ const Footer = () => {
             >
               <Mail size={20} />
             </a>
+
+            <Link
+              to="/admin/login"
+              className="text-sm text-slate-500 transition hover:text-cyan-400"
+            >
+              Admin
+            </Link>
 
             <a
               href="#home"

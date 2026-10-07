@@ -5,6 +5,8 @@ const AdminProjects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -45,6 +47,19 @@ const AdminProjects = () => {
     }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      image: "",
+      technologies: "",
+      github: "",
+      live: "",
+    });
+
+    setEditingId(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,41 +67,105 @@ const AdminProjects = () => {
     setError("");
     setSuccess("");
 
+    const projectData = {
+      title: formData.title,
+      description: formData.description,
+      image: formData.image,
+      technologies: formData.technologies
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      github: formData.github,
+      live: formData.live,
+    };
+
     try {
-      const response = await api.post("/api/projects", {
-        title: formData.title,
-        description: formData.description,
-        image: formData.image,
-        technologies: formData.technologies
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-        github: formData.github,
-        live: formData.live,
-      });
+      if (editingId) {
+        const response = await api.put(
+          `/api/projects/${editingId}`,
+          projectData
+        );
 
-      setSuccess(
-        response.data.message ||
-          "Project created successfully"
-      );
+        setSuccess(
+          response.data.message ||
+            "Project updated successfully"
+        );
+      } else {
+        const response = await api.post(
+          "/api/projects",
+          projectData
+        );
 
-      setFormData({
-        title: "",
-        description: "",
-        image: "",
-        technologies: "",
-        github: "",
-        live: "",
-      });
+        setSuccess(
+          response.data.message ||
+            "Project created successfully"
+        );
+      }
 
-      fetchProjects();
+      resetForm();
+      await fetchProjects();
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Failed to create project"
+          "Failed to save project"
       );
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (project) => {
+    setEditingId(project._id);
+
+    setFormData({
+      title: project.title || "",
+      description: project.description || "",
+      image: project.image || "",
+      technologies: project.technologies?.join(", ") || "",
+      github: project.github || "",
+      live: project.live || "",
+    });
+
+    setError("");
+    setSuccess("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this project?"
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    setDeletingId(id);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await api.delete(
+        `/api/projects/${id}`
+      );
+
+      setSuccess(
+        response.data.message ||
+          "Project deleted successfully"
+      );
+
+      await fetchProjects();
+    } catch (error) {
+      setError(
+        error.response?.data?.message ||
+          "Failed to delete project"
+      );
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -104,9 +183,21 @@ const AdminProjects = () => {
         </div>
 
         <div className="mt-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-2xl font-semibold text-white">
-            Add Project
-          </h2>
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <h2 className="text-2xl font-semibold text-white">
+              {editingId ? "Edit Project" : "Add Project"}
+            </h2>
+
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
 
           <form
             onSubmit={handleSubmit}
@@ -179,8 +270,12 @@ const AdminProjects = () => {
                 className="rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting
-                  ? "Creating..."
-                  : "Add Project"}
+                  ? editingId
+                    ? "Updating..."
+                    : "Creating..."
+                  : editingId
+                    ? "Update Project"
+                    : "Add Project"}
               </button>
             </div>
           </form>
@@ -244,6 +339,29 @@ const AdminProjects = () => {
                           </span>
                         )
                       )}
+                    </div>
+
+                    <div className="mt-5 flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(project)}
+                        className="flex-1 rounded-xl bg-cyan-400 px-4 py-2 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDelete(project._id)
+                        }
+                        disabled={deletingId === project._id}
+                        className="flex-1 rounded-xl border border-red-500/40 px-4 py-2 font-semibold text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {deletingId === project._id
+                          ? "Deleting..."
+                          : "Delete"}
+                      </button>
                     </div>
                   </div>
                 </div>
