@@ -1,8 +1,7 @@
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import api from "../api/axios";
-import { setAccessToken } from "../api/axios";
+import api, { setAccessToken } from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
@@ -28,7 +27,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-console.log(formData);
+    console.log(formData);
     setLoading(true);
     setError("");
 
@@ -40,9 +39,7 @@ console.log(formData);
 
       navigate("/admin/dashboard");
     } catch (error) {
-      setError(
-        error.response?.data?.message || "Login failed"
-      );
+      setError(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -55,22 +52,13 @@ console.log(formData);
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8"
       >
-        <h1 className="text-3xl font-bold text-white">
-          Admin Login
-        </h1>
+        <h1 className="text-3xl font-bold text-white">Admin Login</h1>
 
-        <p className="mt-2 text-slate-400">
-          Login to manage your portfolio
-        </p>
+        <p className="mt-2 text-slate-400">Login to manage your portfolio</p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
-            <label className="mb-2 block text-sm text-slate-300">
-              Email
-            </label>
+            <label className="mb-2 block text-sm text-slate-300">Email</label>
 
             <input
               type="email"
@@ -99,11 +87,7 @@ console.log(formData);
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-400">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-sm text-red-400">{error}</p>}
 
           <button
             type="submit"
@@ -111,6 +95,13 @@ console.log(formData);
             className="w-full rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Login"}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="mt-4 w-full rounded-xl border border-slate-700 px-4 py-3 text-slate-300 transition hover:border-cyan-400 hover:text-cyan-400"
+          >
+            Back to Home
           </button>
         </form>
       </motion.div>
