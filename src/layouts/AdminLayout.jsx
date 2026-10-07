@@ -1,5 +1,10 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, LogOut } from "lucide-react";
+import { NavLink, Link, Outlet } from "react-router-dom";
+import {
+  LayoutDashboard,
+  FolderKanban,
+  ExternalLink,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const AdminLayout = () => {
@@ -55,9 +60,17 @@ const AdminLayout = () => {
             })}
           </div>
 
+          <Link
+            to="/"
+            className="mt-6 flex items-center gap-3 rounded-xl px-4 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-cyan-400"
+          >
+            <ExternalLink size={20} />
+            <span>View Portfolio</span>
+          </Link>
+
           <button
             onClick={handleLogout}
-            className="mt-6 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-400 transition hover:bg-red-500/10"
+            className="mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-400 transition hover:bg-red-500/10"
           >
             <LogOut size={20} />
             <span>Logout</span>
