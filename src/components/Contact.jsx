@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Mail, MapPin, Send } from "lucide-react";
 import { useState } from "react";
+import api from "../api/axios";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,10 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,16 +24,34 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form Data:", formData);
+    setLoading(true);
+    setSuccess("");
+    setError("");
+
+    try {
+      const response = await api.post("/api/messages", formData);
+
+      setSuccess(response.data.message || "Message sent successfully");
+
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <section id="contact" className="bg-slate-950 px-6 py-24">
       <div className="mx-auto max-w-7xl">
-        {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -51,9 +74,7 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        {/* Contact Content */}
         <div className="mt-16 grid gap-10 lg:grid-cols-2">
-          {/* Left Side */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -67,7 +88,6 @@ const Contact = () => {
               opportunities and interesting ideas.
             </p>
 
-            {/* Email */}
             <div className="mt-8 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400">
                 <Mail size={22} />
@@ -85,7 +105,6 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Location */}
             <div className="mt-5 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400">
                 <MapPin size={22} />
@@ -98,7 +117,6 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Social Links */}
             <div className="mt-10">
               <p className="mb-4 text-sm text-slate-500">Find me on</p>
 
@@ -124,7 +142,6 @@ const Contact = () => {
             </div>
           </motion.div>
 
-          {/* Form */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -133,7 +150,6 @@ const Contact = () => {
             className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:p-8"
           >
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">
                   Name
@@ -150,7 +166,6 @@ const Contact = () => {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">
                   Email
@@ -167,7 +182,6 @@ const Contact = () => {
                 />
               </div>
 
-              {/* Subject */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">
                   Subject
@@ -184,7 +198,6 @@ const Contact = () => {
                 />
               </div>
 
-              {/* Message */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">
                   Message
@@ -201,13 +214,17 @@ const Contact = () => {
                 />
               </div>
 
-              {/* Submit */}
+              {success && <p className="text-sm text-green-400">{success}</p>}
+
+              {error && <p className="text-sm text-red-400">{error}</p>}
+
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Send size={18} />
-                Send Message
+                {loading ? "Sending..." : "Send Message"}
               </button>
             </form>
           </motion.div>

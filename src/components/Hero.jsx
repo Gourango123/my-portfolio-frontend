@@ -1,7 +1,25 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, Download } from "lucide-react";
+import api from "../api/axios";
 
 const Hero = () => {
+  const [resume, setResume] = useState(null);
+
+  useEffect(() => {
+    const fetchResume = async () => {
+      try {
+        const response = await api.get("/api/resume");
+
+        setResume(response.data.data);
+      } catch (error) {
+        console.error("Failed to load resume:", error);
+      }
+    };
+
+    fetchResume();
+  }, []);
+
   return (
     <section
       id="home"
@@ -10,13 +28,14 @@ const Hero = () => {
       <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2">
-        {/* Left Side */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <p className="mb-4 text-lg font-medium text-cyan-400">Hi, I'm</p>
+          <p className="mb-4 text-lg font-medium text-cyan-400">
+            Hi, I'm
+          </p>
 
           <h1 className="text-5xl font-bold leading-tight text-white md:text-7xl">
             Gourango
@@ -32,7 +51,6 @@ const Hero = () => {
             using React, Node.js, Express.js and MongoDB.
           </p>
 
-          {/* Buttons */}
           <div className="mt-8 flex flex-wrap gap-4">
             <a
               href="#projects"
@@ -41,18 +59,19 @@ const Hero = () => {
               View Projects
             </a>
 
-            {/* CV public : public/Gourango_Roy_CV.pdf */}
-            <a
-              href="/Gourango_Roy_CV.pdf"
-              download="Gourango_Roy_CV.pdf"
-              className="flex items-center gap-2 rounded-full border border-slate-700 px-6 py-3 font-semibold text-white transition hover:border-cyan-400 hover:text-cyan-400"
-            >
-              <Download size={18} />
-              Download CV
-            </a>
+            {resume && (
+              <a
+                href={resume.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 rounded-full border border-slate-700 px-6 py-3 font-semibold text-white transition hover:border-cyan-400 hover:text-cyan-400"
+              >
+                <Download size={18} />
+                Download CV
+              </a>
+            )}
           </div>
 
-          {/* Social Links */}
           <div className="mt-6 mb-6 flex gap-5">
             <a
               href="https://github.com/Gourango123"
@@ -74,7 +93,6 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Right Side */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -86,13 +104,14 @@ const Hero = () => {
 
             <div className="text-center">
               <p className="text-6xl font-bold text-cyan-400">MERN</p>
-              <p className="mt-3 text-slate-400">Full Stack Developer</p>
+              <p className="mt-3 text-slate-400">
+                Full Stack Developer
+              </p>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
       <motion.a
         href="#about"
         animate={{ y: [0, 8, 0] }}
