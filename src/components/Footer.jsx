@@ -1,7 +1,10 @@
 import { ArrowUp, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <footer className="border-t border-slate-800 bg-slate-950 px-6 py-10">
       <div className="mx-auto max-w-7xl">
@@ -43,10 +46,10 @@ const Footer = () => {
             </a>
 
             <Link
-              to="/admin/login"
+              to={user ? "/admin/dashboard" : "/admin/login"}
               className="text-sm text-slate-500 transition hover:text-cyan-400"
             >
-              Admin
+              {user ? "Admin Panel" : "Admin"}
             </Link>
 
             <a
