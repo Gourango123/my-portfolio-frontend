@@ -36,7 +36,7 @@ const AdminLayout = () => {
           </h1>
         </div>
 
-        <nav className="px-4">
+        <nav className="px-4 mt-5">
           <div className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
