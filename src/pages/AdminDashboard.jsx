@@ -60,14 +60,14 @@ const AdminDashboard = () => {
             Loading dashboard...
           </div>
         ) : (
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
               <p className="text-sm text-slate-400">
                 Projects
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-white">
-                {stats?.projects || 0}
+                {stats?.totalProjects || 0}
               </h2>
             </div>
 
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-white">
-                {stats?.skills || 0}
+                {stats?.totalSkills || 0}
               </h2>
             </div>
 
@@ -87,7 +87,17 @@ const AdminDashboard = () => {
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-white">
-                {stats?.experiences || 0}
+                {stats?.totalExperiences || 0}
+              </h2>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Educations
+              </p>
+
+              <h2 className="mt-3 text-3xl font-bold text-white">
+                {stats?.totalEducations || 0}
               </h2>
             </div>
 
@@ -97,7 +107,17 @@ const AdminDashboard = () => {
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-white">
-                {stats?.messages || 0}
+                {stats?.totalMessages || 0}
+              </h2>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <p className="text-sm text-slate-400">
+                Resumes
+              </p>
+
+              <h2 className="mt-3 text-3xl font-bold text-white">
+                {stats?.totalResumes || 0}
               </h2>
             </div>
           </div>
