@@ -5,6 +5,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminRegister from "./pages/AdminRegister";
 import AdminProjects from "./pages/AdminProjects";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./layouts/AdminLayout";
 
 function App() {
   return (
@@ -22,15 +23,17 @@ function App() {
       />
 
       <Route element={<ProtectedRoute />}>
-        <Route
-          path="/admin/dashboard"
-          element={<AdminDashboard />}
-        />
+        <Route element={<AdminLayout />}>
+          <Route
+            path="/admin/dashboard"
+            element={<AdminDashboard />}
+          />
 
-        <Route
-          path="/admin/projects"
-          element={<AdminProjects />}
-        />
+          <Route
+            path="/admin/projects"
+            element={<AdminProjects />}
+          />
+        </Route>
       </Route>
     </Routes>
   );
