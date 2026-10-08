@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Code2,
+  BriefcaseBusiness,
   ExternalLink,
   LogOut,
 } from "lucide-react";
@@ -26,6 +27,11 @@ const AdminLayout = () => {
       name: "Skills",
       path: "/admin/skills",
       icon: Code2,
+    },
+    {
+      name: "Experience",
+      path: "/admin/experience",
+      icon: BriefcaseBusiness,
     },
   ];
 
