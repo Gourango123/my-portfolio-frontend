@@ -2,42 +2,38 @@ import { useEffect, useState } from "react";
 import { Edit, Trash2, X } from "lucide-react";
 import api from "../api/axios";
 
-const AdminProjects = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
+const AdminSkills = () => {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    image: "",
-    technologies: "",
-    github: "",
-    live: "",
+    name: "",
+    category: "",
+    level: "",
+    icon: "",
   });
 
-  const fetchProjects = async () => {
-    try {
-      const response = await api.get("/api/projects");
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [editId, setEditId] = useState(null);
 
-      setProjects(response.data.data || []);
+  const fetchSkills = async () => {
+    try {
+      const response = await api.get("/api/skills");
+
+      setSkills(response.data.data || []);
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Failed to load projects"
+          "Failed to fetch skills"
       );
     } finally {
-      setLoading(false);
+      setFetchLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProjects();
+    fetchSkills();
   }, []);
 
   const handleChange = (e) => {
@@ -49,64 +45,68 @@ const AdminProjects = () => {
     }));
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: "",
-      description: "",
-      image: "",
-      technologies: "",
-      github: "",
-      live: "",
-    });
-
-    setEditingId(null);
-  };
-
   const validateForm = () => {
-    const title = formData.title.trim();
-    const description = formData.description.trim();
-    const image = formData.image.trim();
-    const technologies = formData.technologies.trim();
-    const github = formData.github.trim();
-    const live = formData.live.trim();
+    const name = formData.name.trim();
+    const category = formData.category.trim();
+    const level = Number(formData.level);
+    const icon = formData.icon.trim();
 
-    if (!title) {
-      return "Project title is required";
+    if (!name) {
+      return "Please select a skill";
     }
 
-    if (title.length < 2) {
-      return "Project title must be at least 2 characters";
+    if (name.length < 2) {
+      return "Skill name must be at least 2 characters";
     }
 
-    if (title.length > 100) {
-      return "Project title must be less than 100 characters";
+    if (name.length > 50) {
+      return "Skill name must be less than 50 characters";
     }
 
-    if (!description) {
-      return "Project description is required";
+    if (!category) {
+      return "Please select a category";
     }
 
-    if (description.length < 10) {
-      return "Project description must be at least 10 characters";
+    if (category.length < 2) {
+      return "Category must be at least 2 characters";
     }
 
-    if (!image) {
-      return "Project image URL is required";
+    if (category.length > 50) {
+      return "Category must be less than 50 characters";
     }
 
-    if (!technologies) {
-      return "Technologies are required";
+    if (formData.level === "") {
+      return "Please select a skill level";
     }
 
-    if (!github) {
-      return "GitHub URL is required";
+    if (!Number.isInteger(level)) {
+      return "Skill level must be a whole number";
     }
 
-    if (!live) {
-      return "Live project URL is required";
+    if (level < 0 || level > 100) {
+      return "Skill level must be between 0 and 100";
+    }
+
+    if (!icon) {
+      return "Please select an icon";
+    }
+
+    if (icon.length > 50) {
+      return "Icon name must be less than 50 characters";
     }
 
     return "";
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      category: "",
+      level: "",
+      icon: "",
+    });
+
+    setEditId(null);
   };
 
   const handleSubmit = async (e) => {
@@ -122,67 +122,61 @@ const AdminProjects = () => {
       return;
     }
 
-    setSubmitting(true);
+    setLoading(true);
 
-    const projectData = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      image: formData.image.trim(),
-      technologies: formData.technologies
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      github: formData.github.trim(),
-      live: formData.live.trim(),
+    const skillData = {
+      name: formData.name.trim(),
+      category: formData.category.trim(),
+      level: Number(formData.level),
+      icon: formData.icon.trim(),
     };
 
     try {
-      if (editingId) {
+      if (editId) {
         const response = await api.put(
-          `/api/projects/${editingId}`,
-          projectData
+          `/api/skills/${editId}`,
+          skillData
         );
 
         setSuccess(
           response.data.message ||
-            "Project updated successfully"
+            "Skill updated successfully"
         );
       } else {
         const response = await api.post(
-          "/api/projects",
-          projectData
+          "/api/skills",
+          skillData
         );
 
         setSuccess(
           response.data.message ||
-            "Project created successfully"
+            "Skill created successfully"
         );
       }
 
       resetForm();
-      await fetchProjects();
+      await fetchSkills();
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Failed to save project"
+          "Something went wrong"
       );
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
-  const handleEdit = (project) => {
-    setEditingId(project._id);
+  const handleEdit = (skill) => {
+    setEditId(skill._id);
 
     setFormData({
-      title: project.title || "",
-      description: project.description || "",
-      image: project.image || "",
-      technologies: Array.isArray(project.technologies)
-        ? project.technologies.join(", ")
-        : "",
-      github: project.github || "",
-      live: project.live || "",
+      name: skill.name || "",
+      category: skill.category || "",
+      level:
+        skill.level !== undefined
+          ? String(skill.level)
+          : "",
+      icon: skill.icon || "",
     });
 
     setError("");
@@ -196,39 +190,36 @@ const AdminProjects = () => {
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this project?"
+      "Are you sure you want to delete this skill?"
     );
 
     if (!confirmDelete) {
       return;
     }
 
-    setDeletingId(id);
     setError("");
     setSuccess("");
 
     try {
       const response = await api.delete(
-        `/api/projects/${id}`
+        `/api/skills/${id}`
       );
 
       setSuccess(
         response.data.message ||
-          "Project deleted successfully"
+          "Skill deleted successfully"
       );
 
-      if (editingId === id) {
+      if (editId === id) {
         resetForm();
       }
 
-      await fetchProjects();
+      await fetchSkills();
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Failed to delete project"
+          "Failed to delete skill"
       );
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -240,14 +231,14 @@ const AdminProjects = () => {
 
   return (
     <section className="min-h-screen bg-slate-950 px-6 py-10">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">
-            Projects Management
+            Skills Management
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Add, edit and manage your portfolio projects
+            Add, edit and manage your portfolio skills
           </p>
         </div>
 
@@ -255,17 +246,17 @@ const AdminProjects = () => {
           <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-bold text-white">
-                {editingId ? "Edit Project" : "Add Project"}
+                {editId ? "Edit Skill" : "Add Skill"}
               </h2>
 
               <p className="mt-1 text-sm text-slate-400">
-                {editingId
-                  ? "Update your project information"
-                  : "Add a new project to your portfolio"}
+                {editId
+                  ? "Update your skill information"
+                  : "Add a new skill to your portfolio"}
               </p>
             </div>
 
-            {editingId && (
+            {editId && (
               <button
                 type="button"
                 onClick={handleCancelEdit}
@@ -283,111 +274,123 @@ const AdminProjects = () => {
           >
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Project Title
+                Skill
               </label>
 
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
+              <select
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter project title"
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              />
+              >
+                <option value="">Select Skill</option>
+                <option value="React">React</option>
+                <option value="JavaScript">
+                  JavaScript
+                </option>
+                <option value="HTML5">HTML5</option>
+                <option value="CSS3">CSS3</option>
+                <option value="Tailwind CSS">
+                  Tailwind CSS
+                </option>
+                <option value="Node.js">Node.js</option>
+                <option value="Express.js">
+                  Express.js
+                </option>
+                <option value="MongoDB">MongoDB</option>
+                <option value="Git">Git</option>
+                <option value="GitHub">GitHub</option>
+              </select>
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Image URL
+                Category
               </label>
 
-              <input
-                type="url"
-                name="image"
-                value={formData.image}
+              <select
+                name="category"
+                value={formData.category}
                 onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="mb-2 block text-sm text-slate-300">
-                Description
-              </label>
-
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Enter project description"
-                rows="5"
-                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="mb-2 block text-sm text-slate-300">
-                Technologies
-              </label>
-
-              <input
-                type="text"
-                name="technologies"
-                value={formData.technologies}
-                onChange={handleChange}
-                placeholder="React, Node.js, MongoDB"
-                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              />
-
-              <p className="mt-2 text-xs text-slate-500">
-                Separate technologies with commas
-              </p>
+              >
+                <option value="">Select Category</option>
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+                <option value="Database">Database</option>
+                <option value="Tools">Tools</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                GitHub URL
+                Level
               </label>
 
-              <input
-                type="url"
-                name="github"
-                value={formData.github}
+              <select
+                name="level"
+                value={formData.level}
                 onChange={handleChange}
-                placeholder="https://github.com/..."
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              />
+              >
+                <option value="">Select Level</option>
+                <option value="50">50%</option>
+                <option value="60">60%</option>
+                <option value="70">70%</option>
+                <option value="75">75%</option>
+                <option value="80">80%</option>
+                <option value="85">85%</option>
+                <option value="90">90%</option>
+                <option value="95">95%</option>
+                <option value="100">100%</option>
+              </select>
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Live URL
+                Icon
               </label>
 
-              <input
-                type="url"
-                name="live"
-                value={formData.live}
+              <select
+                name="icon"
+                value={formData.icon}
                 onChange={handleChange}
-                placeholder="https://example.com"
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              />
+              >
+                <option value="">Select Icon</option>
+                <option value="React">React</option>
+                <option value="Node">Node.js</option>
+                <option value="Express">
+                  Express.js
+                </option>
+                <option value="MongoDB">MongoDB</option>
+                <option value="JavaScript">
+                  JavaScript
+                </option>
+                <option value="HTML">HTML5</option>
+                <option value="CSS">CSS3</option>
+                <option value="Tailwind">
+                  Tailwind CSS
+                </option>
+                <option value="Git">Git</option>
+                <option value="GitHub">GitHub</option>
+              </select>
             </div>
 
             <div className="md:col-span-2">
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={loading}
                 className="w-full rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting
-                  ? editingId
+                {loading
+                  ? editId
                     ? "Updating..."
                     : "Adding..."
-                  : editingId
-                  ? "Update Project"
-                  : "Add Project"}
+                  : editId
+                  ? "Update Skill"
+                  : "Add Skill"}
               </button>
             </div>
           </form>
@@ -408,41 +411,41 @@ const AdminProjects = () => {
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white">
-              All Projects
+              All Skills
             </h2>
 
             <p className="mt-1 text-sm text-slate-400">
-              Total projects: {projects.length}
+              Total skills: {skills.length}
             </p>
           </div>
 
-          {loading ? (
+          {fetchLoading ? (
             <div className="py-10 text-center text-cyan-400">
-              Loading projects...
+              Loading skills...
             </div>
-          ) : projects.length === 0 ? (
+          ) : skills.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-700 py-10 text-center text-slate-400">
-              No projects found
+              No skills found
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1000px]">
+              <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="border-b border-slate-800 text-left">
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Project
+                      Skill
                     </th>
 
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Description
+                      Category
                     </th>
 
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Technologies
+                      Level
                     </th>
 
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Links
+                      Icon
                     </th>
 
                     <th className="px-4 py-4 text-right text-sm font-medium text-slate-400">
@@ -452,69 +455,38 @@ const AdminProjects = () => {
                 </thead>
 
                 <tbody>
-                  {projects.map((project) => (
+                  {skills.map((skill) => (
                     <tr
-                      key={project._id}
+                      key={skill._id}
                       className="border-b border-slate-800/70 transition hover:bg-slate-800/40"
                     >
+                      <td className="px-4 py-4 font-medium text-white">
+                        {skill.name}
+                      </td>
+
+                      <td className="px-4 py-4 text-slate-300">
+                        {skill.category}
+                      </td>
+
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={project.image}
-                            alt={project.title}
-                            className="h-14 w-20 rounded-lg object-cover"
-                          />
+                          <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-700">
+                            <div
+                              className="h-full rounded-full bg-cyan-400"
+                              style={{
+                                width: `${skill.level}%`,
+                              }}
+                            />
+                          </div>
 
-                          <p className="font-semibold text-white">
-                            {project.title}
-                          </p>
+                          <span className="text-sm text-cyan-400">
+                            {skill.level}%
+                          </span>
                         </div>
                       </td>
 
-                      <td className="max-w-xs px-4 py-4">
-                        <p className="line-clamp-3 text-sm text-slate-400">
-                          {project.description}
-                        </p>
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <div className="flex max-w-xs flex-wrap gap-2">
-                          {Array.isArray(
-                            project.technologies
-                          ) &&
-                            project.technologies.map(
-                              (technology, index) => (
-                                <span
-                                  key={index}
-                                  className="rounded-full bg-slate-800 px-3 py-1 text-xs text-cyan-400"
-                                >
-                                  {technology}
-                                </span>
-                              )
-                            )}
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <div className="flex flex-col gap-2">
-                          <a
-                            href={project.github}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-sm text-cyan-400 hover:text-cyan-300"
-                          >
-                            GitHub
-                          </a>
-
-                          <a
-                            href={project.live}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-sm text-green-400 hover:text-green-300"
-                          >
-                            Live
-                          </a>
-                        </div>
+                      <td className="px-4 py-4 text-slate-300">
+                        {skill.icon || "N/A"}
                       </td>
 
                       <td className="px-4 py-4">
@@ -522,7 +494,7 @@ const AdminProjects = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              handleEdit(project)
+                              handleEdit(skill)
                             }
                             className="rounded-lg p-2 text-cyan-400 transition hover:bg-cyan-400/10"
                             title="Edit"
@@ -533,12 +505,9 @@ const AdminProjects = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              handleDelete(project._id)
+                              handleDelete(skill._id)
                             }
-                            disabled={
-                              deletingId === project._id
-                            }
-                            className="rounded-lg p-2 text-red-400 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg p-2 text-red-400 transition hover:bg-red-400/10"
                             title="Delete"
                           >
                             <Trash2 size={18} />
@@ -557,4 +526,4 @@ const AdminProjects = () => {
   );
 };
 
-export default AdminProjects;
+export default AdminSkills;
