@@ -45,6 +45,17 @@ const AdminSkills = () => {
     }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      category: "",
+      level: "",
+      icon: "",
+    });
+
+    setEditId(null);
+  };
+
   const validateForm = () => {
     const name = formData.name.trim();
     const category = formData.category.trim();
@@ -55,24 +66,8 @@ const AdminSkills = () => {
       return "Please select a skill";
     }
 
-    if (name.length < 2) {
-      return "Skill name must be at least 2 characters";
-    }
-
-    if (name.length > 50) {
-      return "Skill name must be less than 50 characters";
-    }
-
     if (!category) {
       return "Please select a category";
-    }
-
-    if (category.length < 2) {
-      return "Category must be at least 2 characters";
-    }
-
-    if (category.length > 50) {
-      return "Category must be less than 50 characters";
     }
 
     if (formData.level === "") {
@@ -91,22 +86,7 @@ const AdminSkills = () => {
       return "Please select an icon";
     }
 
-    if (icon.length > 50) {
-      return "Icon name must be less than 50 characters";
-    }
-
     return "";
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      category: "",
-      level: "",
-      icon: "",
-    });
-
-    setEditId(null);
   };
 
   const handleSubmit = async (e) => {
@@ -155,6 +135,7 @@ const AdminSkills = () => {
       }
 
       resetForm();
+
       await fetchSkills();
     } catch (error) {
       setError(
@@ -173,7 +154,7 @@ const AdminSkills = () => {
       name: skill.name || "",
       category: skill.category || "",
       level:
-        skill.level !== undefined
+        skill.level !== undefined && skill.level !== null
           ? String(skill.level)
           : "",
       icon: skill.icon || "",
@@ -284,21 +265,35 @@ const AdminSkills = () => {
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">Select Skill</option>
+
                 <option value="React">React</option>
+
                 <option value="JavaScript">
                   JavaScript
                 </option>
+
                 <option value="HTML5">HTML5</option>
+
                 <option value="CSS3">CSS3</option>
+
                 <option value="Tailwind CSS">
                   Tailwind CSS
                 </option>
-                <option value="Node.js">Node.js</option>
+
+                <option value="Node.js">
+                  Node.js
+                </option>
+
                 <option value="Express.js">
                   Express.js
                 </option>
-                <option value="MongoDB">MongoDB</option>
+
+                <option value="MongoDB">
+                  MongoDB
+                </option>
+
                 <option value="Git">Git</option>
+
                 <option value="GitHub">GitHub</option>
               </select>
             </div>
@@ -315,11 +310,26 @@ const AdminSkills = () => {
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">Select Category</option>
-                <option value="Frontend">Frontend</option>
-                <option value="Backend">Backend</option>
-                <option value="Database">Database</option>
-                <option value="Tools">Tools</option>
-                <option value="Other">Other</option>
+
+                <option value="Frontend">
+                  Frontend
+                </option>
+
+                <option value="Backend">
+                  Backend
+                </option>
+
+                <option value="Database">
+                  Database
+                </option>
+
+                <option value="Tools">
+                  Tools
+                </option>
+
+                <option value="Other">
+                  Other
+                </option>
               </select>
             </div>
 
@@ -335,6 +345,7 @@ const AdminSkills = () => {
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">Select Level</option>
+
                 <option value="50">50%</option>
                 <option value="60">60%</option>
                 <option value="70">70%</option>
@@ -359,22 +370,46 @@ const AdminSkills = () => {
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">Select Icon</option>
-                <option value="React">React</option>
-                <option value="Node">Node.js</option>
+
+                <option value="React">
+                  React
+                </option>
+
+                <option value="Node">
+                  Node.js
+                </option>
+
                 <option value="Express">
                   Express.js
                 </option>
-                <option value="MongoDB">MongoDB</option>
+
+                <option value="MongoDB">
+                  MongoDB
+                </option>
+
                 <option value="JavaScript">
                   JavaScript
                 </option>
-                <option value="HTML">HTML5</option>
-                <option value="CSS">CSS3</option>
+
+                <option value="HTML">
+                  HTML5
+                </option>
+
+                <option value="CSS">
+                  CSS3
+                </option>
+
                 <option value="Tailwind">
                   Tailwind CSS
                 </option>
-                <option value="Git">Git</option>
-                <option value="GitHub">GitHub</option>
+
+                <option value="Git">
+                  Git
+                </option>
+
+                <option value="GitHub">
+                  GitHub
+                </option>
               </select>
             </div>
 
