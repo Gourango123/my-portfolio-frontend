@@ -46,6 +46,9 @@ const AdminAbout = () => {
     features: defaultFeatures,
   });
 
+  const [featureForm, setFeatureForm] =
+    useState(emptyFeature);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [featureSaving, setFeatureSaving] =
@@ -53,9 +56,6 @@ const AdminAbout = () => {
 
   const [editingFeatureId, setEditingFeatureId] =
     useState(null);
-
-  const [featureForm, setFeatureForm] =
-    useState(emptyFeature);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -101,7 +101,7 @@ const AdminAbout = () => {
     }));
   };
 
-  const handleFeatureFormChange = (e) => {
+  const handleFeatureChange = (e) => {
     const { name, value } = e.target;
 
     setFeatureForm((prev) => ({
@@ -118,37 +118,22 @@ const AdminAbout = () => {
     setSuccess("");
 
     try {
-      let response;
-
-      try {
-        await api.get("/api/about");
-
-        response = await api.put(
-          "/api/about",
-          formData
-        );
-      } catch (error) {
-        if (error.response?.status !== 404) {
-          throw error;
-        }
-
-        response = await api.post(
-          "/api/about",
-          formData
-        );
-      }
+      const response = await api.put(
+        "/api/about",
+        formData
+      );
 
       setFormData(response.data.data);
 
       setSuccess(
         response.data.message ||
-          "About section saved successfully"
+          "About section updated successfully"
       );
     } catch (error) {
       setError(
         error.response?.data?.errors?.join(", ") ||
           error.response?.data?.message ||
-          "Failed to save about section"
+          "Failed to update about section"
       );
     } finally {
       setSaving(false);
@@ -156,9 +141,6 @@ const AdminAbout = () => {
   };
 
   const handleAddFeature = async () => {
-    setError("");
-    setSuccess("");
-
     if (formData.features.length >= 6) {
       setError("Maximum 6 features are allowed");
       return;
@@ -175,6 +157,8 @@ const AdminAbout = () => {
     }
 
     setFeatureSaving(true);
+    setError("");
+    setSuccess("");
 
     try {
       const response = await api.post(
@@ -184,7 +168,9 @@ const AdminAbout = () => {
 
       setFormData(response.data.data);
 
-      setFeatureForm(emptyFeature);
+      setFeatureForm({
+        ...emptyFeature,
+      });
 
       setSuccess(
         response.data.message ||
@@ -212,11 +198,6 @@ const AdminAbout = () => {
 
     setError("");
     setSuccess("");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
   const handleUpdateFeature = async () => {
@@ -247,7 +228,10 @@ const AdminAbout = () => {
       setFormData(response.data.data);
 
       setEditingFeatureId(null);
-      setFeatureForm(emptyFeature);
+
+      setFeatureForm({
+        ...emptyFeature,
+      });
 
       setSuccess(
         response.data.message ||
@@ -285,7 +269,10 @@ const AdminAbout = () => {
 
       if (editingFeatureId === featureId) {
         setEditingFeatureId(null);
-        setFeatureForm(emptyFeature);
+
+        setFeatureForm({
+          ...emptyFeature,
+        });
       }
 
       setSuccess(
@@ -302,7 +289,11 @@ const AdminAbout = () => {
 
   const handleCancelEdit = () => {
     setEditingFeatureId(null);
-    setFeatureForm(emptyFeature);
+
+    setFeatureForm({
+      ...emptyFeature,
+    });
+
     setError("");
     setSuccess("");
   };
@@ -330,7 +321,7 @@ const AdminAbout = () => {
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Manage your portfolio About section and feature
+            Manage your About section content and feature
             cards.
           </p>
         </div>
@@ -416,234 +407,224 @@ const AdminAbout = () => {
                   className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
                 />
               </div>
+
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex w-fit items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={20} />
+
+                {saving
+                  ? "Saving..."
+                  : "Save About Section"}
+              </button>
             </div>
           </div>
+        </form>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Feature Cards
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  {formData.features.length}/6 features
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {formData.features.map(
-                (feature, index) => (
-                  <div
-                    key={feature._id || index}
-                    className="rounded-xl border border-slate-800 bg-slate-950 p-5"
-                  >
-                    <div className="mb-5 flex items-center justify-between">
-                      <h3 className="font-semibold text-cyan-400">
-                        Feature {index + 1}
-                      </h3>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleEditFeature(feature)
-                          }
-                          className="rounded-lg p-2 text-cyan-400 transition hover:bg-cyan-400/10"
-                        >
-                          <Edit size={18} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleDeleteFeature(
-                              feature._id
-                            )
-                          }
-                          className="rounded-lg p-2 text-red-400 transition hover:bg-red-500/10"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-5">
-                      <div>
-                        <p className="mb-2 text-sm font-medium text-slate-400">
-                          Icon
-                        </p>
-
-                        <p className="text-white">
-                          {feature.icon}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="mb-2 text-sm font-medium text-slate-400">
-                          Title
-                        </p>
-
-                        <p className="text-white">
-                          {feature.title}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="mb-2 text-sm font-medium text-slate-400">
-                          Description
-                        </p>
-
-                        <p className="leading-7 text-slate-400">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <div className="mb-6">
+        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
               <h2 className="text-xl font-semibold">
-                {editingFeatureId
-                  ? "Edit Feature"
-                  : "Add New Feature"}
+                Feature Cards
               </h2>
 
               <p className="mt-1 text-sm text-slate-400">
-                {editingFeatureId
-                  ? "Update an existing feature card."
-                  : "Add a new feature card to your About section."}
+                {formData.features.length}/6 features
               </p>
-            </div>
-
-            <div className="grid gap-5">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Icon
-                </label>
-
-                <select
-                  name="icon"
-                  value={featureForm.icon}
-                  onChange={handleFeatureFormChange}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-                >
-                  <option value="Code2">
-                    Code2
-                  </option>
-
-                  <option value="Server">
-                    Server
-                  </option>
-
-                  <option value="Database">
-                    Database
-                  </option>
-
-                  <option value="Rocket">
-                    Rocket
-                  </option>
-
-                  <option value="ShieldCheck">
-                    ShieldCheck
-                  </option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Title
-                </label>
-
-                <input
-                  type="text"
-                  name="title"
-                  value={featureForm.title}
-                  onChange={handleFeatureFormChange}
-                  placeholder="API & Authentication"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Description
-                </label>
-
-                <textarea
-                  name="description"
-                  value={featureForm.description}
-                  onChange={handleFeatureFormChange}
-                  rows={4}
-                  placeholder="Building secure REST APIs with JWT authentication..."
-                  className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                {editingFeatureId ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={handleUpdateFeature}
-                      disabled={featureSaving}
-                      className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <Save size={20} />
-
-                      {featureSaving
-                        ? "Updating..."
-                        : "Update Feature"}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleCancelEdit}
-                      className="flex items-center gap-2 rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-300 transition hover:bg-slate-800"
-                    >
-                      <X size={20} />
-
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleAddFeature}
-                    disabled={
-                      featureSaving ||
-                      formData.features.length >= 6
-                    }
-                    className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <Plus size={20} />
-
-                    {featureSaving
-                      ? "Adding..."
-                      : "Add Feature"}
-                  </button>
-                )}
-              </div>
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Save size={20} />
+          <div className="grid gap-5 md:grid-cols-2">
+            {formData.features.map(
+              (feature, index) => (
+                <div
+                  key={feature._id || index}
+                  className="rounded-xl border border-slate-800 bg-slate-950 p-5"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-cyan-400">
+                      Feature {index + 1}
+                    </span>
 
-            {saving
-              ? "Saving..."
-              : "Save About Section"}
-          </button>
-        </form>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleEditFeature(feature)
+                        }
+                        className="rounded-lg p-2 text-cyan-400 transition hover:bg-cyan-400/10"
+                      >
+                        <Edit size={18} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDeleteFeature(
+                            feature._id
+                          )
+                        }
+                        className="rounded-lg p-2 text-red-400 transition hover:bg-red-500/10"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="mb-2 text-sm text-slate-500">
+                    Icon
+                  </p>
+
+                  <p className="mb-4 font-medium text-white">
+                    {feature.icon}
+                  </p>
+
+                  <p className="mb-2 text-sm text-slate-500">
+                    Title
+                  </p>
+
+                  <h3 className="mb-4 text-lg font-semibold text-white">
+                    {feature.title}
+                  </h3>
+
+                  <p className="mb-2 text-sm text-slate-500">
+                    Description
+                  </p>
+
+                  <p className="leading-7 text-slate-400">
+                    {feature.description}
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 className="text-xl font-semibold">
+            {editingFeatureId
+              ? "Edit Feature"
+              : "Add New Feature"}
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-400">
+            {editingFeatureId
+              ? "Update the selected feature card."
+              : "Add a new feature card to your About section."}
+          </p>
+
+          <div className="mt-6 grid gap-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-300">
+                Icon
+              </label>
+
+              <select
+                name="icon"
+                value={featureForm.icon}
+                onChange={handleFeatureChange}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              >
+                <option value="Code2">
+                  Code2
+                </option>
+
+                <option value="Server">
+                  Server
+                </option>
+
+                <option value="Database">
+                  Database
+                </option>
+
+                <option value="Rocket">
+                  Rocket
+                </option>
+
+                <option value="ShieldCheck">
+                  ShieldCheck
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-300">
+                Title
+              </label>
+
+              <input
+                type="text"
+                name="title"
+                value={featureForm.title}
+                onChange={handleFeatureChange}
+                placeholder="API & Authentication"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-300">
+                Description
+              </label>
+
+              <textarea
+                name="description"
+                value={featureForm.description}
+                onChange={handleFeatureChange}
+                rows={4}
+                placeholder="Building secure REST APIs with JWT authentication..."
+                className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              {editingFeatureId ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleUpdateFeature}
+                    disabled={featureSaving}
+                    className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Save size={20} />
+
+                    {featureSaving
+                      ? "Updating..."
+                      : "Update Feature"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="flex items-center gap-2 rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-300 transition hover:bg-slate-800"
+                  >
+                    <X size={20} />
+
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleAddFeature}
+                  disabled={
+                    featureSaving ||
+                    formData.features.length >= 6
+                  }
+                  className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Plus size={20} />
+
+                  {featureSaving
+                    ? "Adding..."
+                    : "Add Feature"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
