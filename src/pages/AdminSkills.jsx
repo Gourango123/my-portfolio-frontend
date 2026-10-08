@@ -23,8 +23,6 @@ const AdminProjects = () => {
 
   const fetchProjects = async () => {
     try {
-      setLoading(true);
-
       const response = await api.get("/api/projects");
 
       setProjects(response.data.data || []);
@@ -180,8 +178,9 @@ const AdminProjects = () => {
       title: project.title || "",
       description: project.description || "",
       image: project.image || "",
-      technologies:
-        project.technologies?.join(", ") || "",
+      technologies: Array.isArray(project.technologies)
+        ? project.technologies.join(", ")
+        : "",
       github: project.github || "",
       live: project.live || "",
     });
@@ -256,9 +255,7 @@ const AdminProjects = () => {
           <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-bold text-white">
-                {editingId
-                  ? "Edit Project"
-                  : "Add Project"}
+                {editingId ? "Edit Project" : "Add Project"}
               </h2>
 
               <p className="mt-1 text-sm text-slate-400">
@@ -409,16 +406,14 @@ const AdminProjects = () => {
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                All Projects
-              </h2>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white">
+              All Projects
+            </h2>
 
-              <p className="mt-1 text-sm text-slate-400">
-                Total projects: {projects.length}
-              </p>
-            </div>
+            <p className="mt-1 text-sm text-slate-400">
+              Total projects: {projects.length}
+            </p>
           </div>
 
           {loading ? (
@@ -470,11 +465,9 @@ const AdminProjects = () => {
                             className="h-14 w-20 rounded-lg object-cover"
                           />
 
-                          <div>
-                            <p className="font-semibold text-white">
-                              {project.title}
-                            </p>
-                          </div>
+                          <p className="font-semibold text-white">
+                            {project.title}
+                          </p>
                         </div>
                       </td>
 
@@ -486,16 +479,19 @@ const AdminProjects = () => {
 
                       <td className="px-4 py-4">
                         <div className="flex max-w-xs flex-wrap gap-2">
-                          {project.technologies?.map(
-                            (technology, index) => (
-                              <span
-                                key={index}
-                                className="rounded-full bg-slate-800 px-3 py-1 text-xs text-cyan-400"
-                              >
-                                {technology}
-                              </span>
-                            )
-                          )}
+                          {Array.isArray(
+                            project.technologies
+                          ) &&
+                            project.technologies.map(
+                              (technology, index) => (
+                                <span
+                                  key={index}
+                                  className="rounded-full bg-slate-800 px-3 py-1 text-xs text-cyan-400"
+                                >
+                                  {technology}
+                                </span>
+                              )
+                            )}
                         </div>
                       </td>
 
