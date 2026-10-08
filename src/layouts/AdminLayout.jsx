@@ -1,6 +1,7 @@
 import { NavLink, Link, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
+  UserRound,
   FolderKanban,
   Code2,
   BriefcaseBusiness,
@@ -20,6 +21,11 @@ const AdminLayout = () => {
       name: "Dashboard",
       path: "/admin/dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      name: "About",
+      path: "/admin/about",
+      icon: UserRound,
     },
     {
       name: "Projects",

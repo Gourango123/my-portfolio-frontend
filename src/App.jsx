@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRegister from "./pages/AdminRegister";
+import AdminAbout from "./pages/AdminAbout";
 import AdminProjects from "./pages/AdminProjects";
 import AdminSkills from "./pages/AdminSkills";
 import AdminEducation from "./pages/AdminEducation";
@@ -32,6 +33,11 @@ function App() {
           <Route
             path="/admin/dashboard"
             element={<AdminDashboard />}
+          />
+
+          <Route
+            path="/admin/about"
+            element={<AdminAbout />}
           />
 
           <Route
