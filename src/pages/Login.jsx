@@ -96,6 +96,19 @@ const Login = () => {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-500">
+              Don't have an admin account?
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/admin/register")}
+              className="mt-2 text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
+            >
+              Create Admin Account
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => navigate("/")}

@@ -172,6 +172,28 @@ const AdminRegister = () => {
           >
             {loading ? "Creating..." : "Create Admin"}
           </button>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-500">
+              Already have an admin account?
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/admin/login")}
+              className="mt-2 text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
+            >
+              Login
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="w-full rounded-xl border border-slate-700 px-4 py-3 text-slate-300 transition hover:border-cyan-400 hover:text-cyan-400"
+          >
+            Back to Home
+          </button>
         </form>
       </motion.div>
     </section>
