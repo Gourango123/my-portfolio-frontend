@@ -1,629 +1,103 @@
-import { useEffect, useState } from "react";
-import { Edit, Plus, Trash2, X } from "lucide-react";
-import {
-  SiReact,
-  SiNodedotjs,
-  SiExpress,
-  SiMongodb,
-  SiJavascript,
-  SiHtml5,
-  SiCss3,
-  SiTailwindcss,
-  SiGit,
-  SiGithub,
-} from "react-icons/si";
-import api from "../api/axios";
-
-const iconMap = {
-  SiReact,
-  SiNodedotjs,
-  SiExpress,
-  SiMongodb,
-  SiJavascript,
-  SiHtml5,
-  SiCss3,
-  SiTailwindcss,
-  SiGit,
-  SiGithub,
-};
-
-const skillOptions = [
-  {
-    name: "React",
-    category: "Frontend",
-    icon: "SiReact",
-  },
-  {
-    name: "JavaScript",
-    category: "Frontend",
-    icon: "SiJavascript",
-  },
-  {
-    name: "HTML5",
-    category: "Frontend",
-    icon: "SiHtml5",
-  },
-  {
-    name: "CSS3",
-    category: "Frontend",
-    icon: "SiCss3",
-  },
-  {
-    name: "Tailwind CSS",
-    category: "Frontend",
-    icon: "SiTailwindcss",
-  },
-  {
-    name: "Node.js",
-    category: "Backend",
-    icon: "SiNodedotjs",
-  },
-  {
-    name: "Express.js",
-    category: "Backend",
-    icon: "SiExpress",
-  },
-  {
-    name: "MongoDB",
-    category: "Database",
-    icon: "SiMongodb",
-  },
-  {
-    name: "Git",
-    category: "Tools",
-    icon: "SiGit",
-  },
-  {
-    name: "GitHub",
-    category: "Tools",
-    icon: "SiGithub",
-  },
-];
-
-const categoryOptions = [
-  "Frontend",
-  "Backend",
-  "Database",
-  "Tools",
-  "Other",
-];
-
-const levelOptions = [
-  50,
-  60,
-  70,
-  75,
-  80,
-  85,
-  90,
-  95,
-  100,
-];
-
-const iconOptions = [
-  {
-    label: "React",
-    value: "SiReact",
-  },
-  {
-    label: "Node.js",
-    value: "SiNodedotjs",
-  },
-  {
-    label: "Express.js",
-    value: "SiExpress",
-  },
-  {
-    label: "MongoDB",
-    value: "SiMongodb",
-  },
-  {
-    label: "JavaScript",
-    value: "SiJavascript",
-  },
-  {
-    label: "HTML5",
-    value: "SiHtml5",
-  },
-  {
-    label: "CSS3",
-    value: "SiCss3",
-  },
-  {
-    label: "Tailwind CSS",
-    value: "SiTailwindcss",
-  },
-  {
-    label: "Git",
-    value: "SiGit",
-  },
-  {
-    label: "GitHub",
-    value: "SiGithub",
-  },
-];
+import { useState } from "react";
 
 const AdminSkills = () => {
-  const [skills, setSkills] = useState([]);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    level: "",
-    icon: "",
-  });
-
-  const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const fetchSkills = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const response = await api.get("/api/skills");
-
-      setSkills(response.data.data || []);
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to fetch skills"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSkills();
-  }, []);
-
-  const handleSkillChange = (e) => {
-    const name = e.target.value;
-
-    const selectedSkill = skillOptions.find(
-      (skill) => skill.name === name
-    );
-
-    if (!selectedSkill) {
-      setFormData((prev) => ({
-        ...prev,
-        name: "",
-        category: "",
-        icon: "",
-      }));
-
-      return;
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      name: selectedSkill.name,
-      category: selectedSkill.category,
-      icon: selectedSkill.icon,
-    }));
-  };
-
-  const handleCategoryChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      category: e.target.value,
-    }));
-  };
-
-  const handleLevelChange = (e) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-      level: value === "" ? "" : Number(value),
-    }));
-  };
-
-  const handleIconChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      icon: e.target.value,
-    }));
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      category: "",
-      level: "",
-      icon: "",
-    });
-
-    setEditingId(null);
-    setError("");
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setSubmitting(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const submitData = {
-        name: formData.name,
-        category: formData.category,
-        level: Number(formData.level),
-        icon: formData.icon,
-      };
-
-      if (editingId) {
-        await api.put(
-          `/api/skills/${editingId}`,
-          submitData
-        );
-
-        setSuccess("Skill updated successfully");
-      } else {
-        await api.post(
-          "/api/skills",
-          submitData
-        );
-
-        setSuccess("Skill created successfully");
-      }
-
-      resetForm();
-
-      await fetchSkills();
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Something went wrong"
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleEdit = (skill) => {
-    setEditingId(skill._id);
-
-    setFormData({
-      name: skill.name || "",
-      category: skill.category || "",
-      level:
-        skill.level !== undefined &&
-        skill.level !== null
-          ? Number(skill.level)
-          : "",
-      icon: skill.icon || "",
-    });
-
-    setError("");
-    setSuccess("");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this skill?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setError("");
-      setSuccess("");
-
-      await api.delete(`/api/skills/${id}`);
-
-      setSuccess("Skill deleted successfully");
-
-      await fetchSkills();
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to delete skill"
-      );
-    }
-  };
+  const [skill, setSkill] = useState("");
+  const [category, setCategory] = useState("");
+  const [level, setLevel] = useState("");
+  const [icon, setIcon] = useState("");
 
   return (
-    <section className="relative z-20 min-h-screen bg-slate-950 px-6 py-8">
-      <div className="mx-auto max-w-6xl">
+    <section className="min-h-screen bg-slate-950 px-6 py-10">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">
-            Skills
-          </h1>
+        <h1 className="mb-8 text-2xl font-bold text-white">
+          Test Skills Dropdown
+        </h1>
 
-          <p className="mt-2 text-slate-400">
-            Manage your portfolio skills
-          </p>
-        </div>
+        <div className="space-y-5">
 
-        <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div>
+            <label className="mb-2 block text-white">
+              Skill
+            </label>
 
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">
-              {editingId ? "Edit Skill" : "Add Skill"}
-            </h2>
-
-            {editingId && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
-              >
-                <X size={18} />
-                Cancel
-              </button>
-            )}
+            <select
+              value={skill}
+              onChange={(e) => setSkill(e.target.value)}
+              className="w-full rounded-xl bg-white px-4 py-3 text-black"
+            >
+              <option value="">Select Skill</option>
+              <option value="React">React</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="Node.js">Node.js</option>
+              <option value="Express.js">Express.js</option>
+              <option value="MongoDB">MongoDB</option>
+            </select>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="grid gap-5 md:grid-cols-2"
-          >
+          <div>
+            <label className="mb-2 block text-white">
+              Category
+            </label>
 
-            <div>
-              <label className="mb-2 block text-sm text-slate-300">
-                Skill Name
-              </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full rounded-xl bg-white px-4 py-3 text-black"
+            >
+              <option value="">Select Category</option>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Database">Database</option>
+              <option value="Tools">Tools</option>
+            </select>
+          </div>
 
-              <select
-                name="name"
-                value={formData.name}
-                onChange={handleSkillChange}
-                required
-                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              >
-                <option value="">
-                  Select Skill
-                </option>
+          <div>
+            <label className="mb-2 block text-white">
+              Level
+            </label>
 
-                {skillOptions.map((skill) => (
-                  <option
-                    key={skill.name}
-                    value={skill.name}
-                  >
-                    {skill.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              className="w-full rounded-xl bg-white px-4 py-3 text-black"
+            >
+              <option value="">Select Level</option>
+              <option value="50">50%</option>
+              <option value="60">60%</option>
+              <option value="70">70%</option>
+              <option value="80">80%</option>
+              <option value="90">90%</option>
+              <option value="100">100%</option>
+            </select>
+          </div>
 
-            <div>
-              <label className="mb-2 block text-sm text-slate-300">
-                Category
-              </label>
+          <div>
+            <label className="mb-2 block text-white">
+              Icon
+            </label>
 
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleCategoryChange}
-                required
-                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              >
-                <option value="">
-                  Select Category
-                </option>
+            <select
+              value={icon}
+              onChange={(e) => setIcon(e.target.value)}
+              className="w-full rounded-xl bg-white px-4 py-3 text-black"
+            >
+              <option value="">Select Icon</option>
+              <option value="SiReact">React</option>
+              <option value="SiNodedotjs">Node.js</option>
+              <option value="SiMongodb">MongoDB</option>
+              <option value="SiJavascript">JavaScript</option>
+            </select>
+          </div>
 
-                {categoryOptions.map((category) => (
-                  <option
-                    key={category}
-                    value={category}
-                  >
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm text-slate-300">
-                Skill Level
-              </label>
-
-              <select
-                name="level"
-                value={formData.level}
-                onChange={handleLevelChange}
-                required
-                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              >
-                <option value="">
-                  Select Level
-                </option>
-
-                {levelOptions.map((level) => (
-                  <option
-                    key={level}
-                    value={level}
-                  >
-                    {level}%
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm text-slate-300">
-                Icon
-              </label>
-
-              <select
-                name="icon"
-                value={formData.icon}
-                onChange={handleIconChange}
-                required
-                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              >
-                <option value="">
-                  Select Icon
-                </option>
-
-                {iconOptions.map((icon) => (
-                  <option
-                    key={icon.value}
-                    value={icon.value}
-                  >
-                    {icon.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {editingId ? (
-                  <Edit size={18} />
-                ) : (
-                  <Plus size={18} />
-                )}
-
-                {submitting
-                  ? "Saving..."
-                  : editingId
-                  ? "Update Skill"
-                  : "Add Skill"}
-              </button>
-            </div>
-          </form>
-
-          {error && (
-            <p className="mt-4 text-sm text-red-400">
-              {error}
-            </p>
-          )}
-
-          {success && (
-            <p className="mt-4 text-sm text-green-400">
-              {success}
-            </p>
-          )}
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-
-          <h2 className="mb-6 text-xl font-semibold text-white">
-            All Skills
-          </h2>
-
-          {loading ? (
-            <div className="py-10 text-center text-cyan-400">
-              Loading skills...
-            </div>
-          ) : skills.length === 0 ? (
-            <div className="py-10 text-center text-slate-500">
-              No skills found
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-              {skills.map((skill) => {
-                const Icon = iconMap[skill.icon];
-
-                return (
-                  <div
-                    key={skill._id}
-                    className="rounded-xl border border-slate-800 bg-slate-950 p-5"
-                  >
-
-                    <div className="flex items-start justify-between gap-4">
-
-                      <div className="min-w-0 flex-1">
-
-                        <div className="flex items-center gap-3">
-
-                          {Icon && (
-                            <Icon
-                              size={28}
-                              className="shrink-0 text-cyan-400"
-                            />
-                          )}
-
-                          <h3 className="text-lg font-semibold text-white">
-                            {skill.name}
-                          </h3>
-
-                        </div>
-
-                        <p className="mt-2 text-sm text-slate-400">
-                          {skill.category}
-                        </p>
-
-                        <div className="mt-3">
-
-                          <div className="mb-1 flex items-center justify-between">
-
-                            <span className="text-xs text-slate-500">
-                              Skill Level
-                            </span>
-
-                            <span className="text-sm font-medium text-cyan-400">
-                              {skill.level}%
-                            </span>
-
-                          </div>
-
-                          <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-
-                            <div
-                              className="h-full rounded-full bg-cyan-400 transition-all"
-                              style={{
-                                width: `${skill.level}%`,
-                              }}
-                            />
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                      <div className="flex gap-2">
-
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(skill)}
-                          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-cyan-400"
-                        >
-                          <Edit size={18} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleDelete(skill._id)
-                          }
-                          className="rounded-lg p-2 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                  </div>
-                );
-              })}
-
-            </div>
-          )}
-
+        <div className="mt-8 rounded-xl bg-slate-800 p-5 text-white">
+          <p>Skill: {skill}</p>
+          <p>Category: {category}</p>
+          <p>Level: {level}%</p>
+          <p>Icon: {icon}</p>
         </div>
 
       </div>
