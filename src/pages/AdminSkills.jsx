@@ -80,6 +80,14 @@ const skillOptions = [
   },
 ];
 
+const categoryOptions = [
+  "Frontend",
+  "Backend",
+  "Database",
+  "Tools",
+  "Other",
+];
+
 const levelOptions = [
   50,
   60,
@@ -90,6 +98,49 @@ const levelOptions = [
   90,
   95,
   100,
+];
+
+const iconOptions = [
+  {
+    label: "React",
+    value: "SiReact",
+  },
+  {
+    label: "Node.js",
+    value: "SiNodedotjs",
+  },
+  {
+    label: "Express.js",
+    value: "SiExpress",
+  },
+  {
+    label: "MongoDB",
+    value: "SiMongodb",
+  },
+  {
+    label: "JavaScript",
+    value: "SiJavascript",
+  },
+  {
+    label: "HTML5",
+    value: "SiHtml5",
+  },
+  {
+    label: "CSS3",
+    value: "SiCss3",
+  },
+  {
+    label: "Tailwind CSS",
+    value: "SiTailwindcss",
+  },
+  {
+    label: "Git",
+    value: "SiGit",
+  },
+  {
+    label: "GitHub",
+    value: "SiGithub",
+  },
 ];
 
 const AdminSkills = () => {
@@ -131,19 +182,19 @@ const AdminSkills = () => {
   }, []);
 
   const handleSkillChange = (e) => {
-    const selectedName = e.target.value;
+    const name = e.target.value;
 
     const selectedSkill = skillOptions.find(
-      (skill) => skill.name === selectedName
+      (skill) => skill.name === name
     );
 
     if (!selectedSkill) {
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         name: "",
         category: "",
-        level: "",
         icon: "",
-      });
+      }));
 
       return;
     }
@@ -156,12 +207,26 @@ const AdminSkills = () => {
     }));
   };
 
-  const handleLevelChange = (e) => {
+  const handleCategoryChange = (e) => {
     setFormData((prev) => ({
       ...prev,
-      level: e.target.value
-        ? Number(e.target.value)
-        : "",
+      category: e.target.value,
+    }));
+  };
+
+  const handleLevelChange = (e) => {
+    const value = e.target.value;
+
+    setFormData((prev) => ({
+      ...prev,
+      level: value === "" ? "" : Number(value),
+    }));
+  };
+
+  const handleIconChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      icon: e.target.value,
     }));
   };
 
@@ -185,20 +250,31 @@ const AdminSkills = () => {
     setSuccess("");
 
     try {
+      const submitData = {
+        name: formData.name,
+        category: formData.category,
+        level: Number(formData.level),
+        icon: formData.icon,
+      };
+
       if (editingId) {
         await api.put(
           `/api/skills/${editingId}`,
-          formData
+          submitData
         );
 
         setSuccess("Skill updated successfully");
       } else {
-        await api.post("/api/skills", formData);
+        await api.post(
+          "/api/skills",
+          submitData
+        );
 
         setSuccess("Skill created successfully");
       }
 
       resetForm();
+
       await fetchSkills();
     } catch (error) {
       setError(
@@ -260,8 +336,9 @@ const AdminSkills = () => {
   };
 
   return (
-    <section className="min-h-screen bg-slate-950 px-6 py-8">
+    <section className="relative z-20 min-h-screen bg-slate-950 px-6 py-8">
       <div className="mx-auto max-w-6xl">
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">
             Skills
@@ -273,6 +350,7 @@ const AdminSkills = () => {
         </div>
 
         <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-white">
               {editingId ? "Edit Skill" : "Add Skill"}
@@ -294,6 +372,7 @@ const AdminSkills = () => {
             onSubmit={handleSubmit}
             className="grid gap-5 md:grid-cols-2"
           >
+
             <div>
               <label className="mb-2 block text-sm text-slate-300">
                 Skill Name
@@ -304,7 +383,7 @@ const AdminSkills = () => {
                 value={formData.name}
                 onChange={handleSkillChange}
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               >
                 <option value="">
                   Select Skill
@@ -329,38 +408,22 @@ const AdminSkills = () => {
               <select
                 name="category"
                 value={formData.category}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    category: e.target.value,
-                  }))
-                }
+                onChange={handleCategoryChange}
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               >
                 <option value="">
                   Select Category
                 </option>
 
-                <option value="Frontend">
-                  Frontend
-                </option>
-
-                <option value="Backend">
-                  Backend
-                </option>
-
-                <option value="Database">
-                  Database
-                </option>
-
-                <option value="Tools">
-                  Tools
-                </option>
-
-                <option value="Other">
-                  Other
-                </option>
+                {categoryOptions.map((category) => (
+                  <option
+                    key={category}
+                    value={category}
+                  >
+                    {category}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -374,14 +437,17 @@ const AdminSkills = () => {
                 value={formData.level}
                 onChange={handleLevelChange}
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               >
                 <option value="">
                   Select Level
                 </option>
 
                 {levelOptions.map((level) => (
-                  <option key={level} value={level}>
+                  <option
+                    key={level}
+                    value={level}
+                  >
                     {level}%
                   </option>
                 ))}
@@ -396,58 +462,22 @@ const AdminSkills = () => {
               <select
                 name="icon"
                 value={formData.icon}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    icon: e.target.value,
-                  }))
-                }
+                onChange={handleIconChange}
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                className="w-full cursor-pointer appearance-auto rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               >
                 <option value="">
                   Select Icon
                 </option>
 
-                <option value="SiReact">
-                  React
-                </option>
-
-                <option value="SiNodedotjs">
-                  Node.js
-                </option>
-
-                <option value="SiExpress">
-                  Express.js
-                </option>
-
-                <option value="SiMongodb">
-                  MongoDB
-                </option>
-
-                <option value="SiJavascript">
-                  JavaScript
-                </option>
-
-                <option value="SiHtml5">
-                  HTML5
-                </option>
-
-                <option value="SiCss3">
-                  CSS3
-                </option>
-
-                <option value="SiTailwindcss">
-                  Tailwind CSS
-                </option>
-
-                <option value="SiGit">
-                  Git
-                </option>
-
-                <option value="SiGithub">
-                  GitHub
-                </option>
+                {iconOptions.map((icon) => (
+                  <option
+                    key={icon.value}
+                    value={icon.value}
+                  >
+                    {icon.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -486,6 +516,7 @@ const AdminSkills = () => {
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
           <h2 className="mb-6 text-xl font-semibold text-white">
             All Skills
           </h2>
@@ -500,6 +531,7 @@ const AdminSkills = () => {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
               {skills.map((skill) => {
                 const Icon = iconMap[skill.icon];
 
@@ -508,9 +540,13 @@ const AdminSkills = () => {
                     key={skill._id}
                     className="rounded-xl border border-slate-800 bg-slate-950 p-5"
                   >
+
                     <div className="flex items-start justify-between gap-4">
+
                       <div className="min-w-0 flex-1">
+
                         <div className="flex items-center gap-3">
+
                           {Icon && (
                             <Icon
                               size={28}
@@ -521,6 +557,7 @@ const AdminSkills = () => {
                           <h3 className="text-lg font-semibold text-white">
                             {skill.name}
                           </h3>
+
                         </div>
 
                         <p className="mt-2 text-sm text-slate-400">
@@ -528,7 +565,9 @@ const AdminSkills = () => {
                         </p>
 
                         <div className="mt-3">
+
                           <div className="mb-1 flex items-center justify-between">
+
                             <span className="text-xs text-slate-500">
                               Skill Level
                             </span>
@@ -536,20 +575,26 @@ const AdminSkills = () => {
                             <span className="text-sm font-medium text-cyan-400">
                               {skill.level}%
                             </span>
+
                           </div>
 
                           <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+
                             <div
                               className="h-full rounded-full bg-cyan-400 transition-all"
                               style={{
                                 width: `${skill.level}%`,
                               }}
                             />
+
                           </div>
+
                         </div>
+
                       </div>
 
                       <div className="flex gap-2">
+
                         <button
                           type="button"
                           onClick={() => handleEdit(skill)}
@@ -567,14 +612,20 @@ const AdminSkills = () => {
                         >
                           <Trash2 size={18} />
                         </button>
+
                       </div>
+
                     </div>
+
                   </div>
                 );
               })}
+
             </div>
           )}
+
         </div>
+
       </div>
     </section>
   );
