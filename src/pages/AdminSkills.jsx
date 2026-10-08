@@ -1,6 +1,31 @@
 import { useEffect, useState } from "react";
 import { Edit, Plus, Trash2, X } from "lucide-react";
+import {
+  SiReact,
+  SiNodedotjs,
+  SiExpress,
+  SiMongodb,
+  SiJavascript,
+  SiHtml5,
+  SiCss3,
+  SiTailwindcss,
+  SiGit,
+  SiGithub,
+} from "react-icons/si";
 import api from "../api/axios";
+
+const iconMap = {
+  SiReact,
+  SiNodedotjs,
+  SiExpress,
+  SiMongodb,
+  SiJavascript,
+  SiHtml5,
+  SiCss3,
+  SiTailwindcss,
+  SiGit,
+  SiGithub,
+};
 
 const AdminSkills = () => {
   const [skills, setSkills] = useState([]);
@@ -216,7 +241,7 @@ const AdminSkills = () => {
                 value={formData.level}
                 onChange={handleChange}
                 required
-                placeholder="Intermediate"
+                placeholder="80"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               />
             </div>
@@ -226,14 +251,24 @@ const AdminSkills = () => {
                 Icon
               </label>
 
-              <input
-                type="text"
+              <select
                 name="icon"
                 value={formData.icon}
                 onChange={handleChange}
-                placeholder="SiReact"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              />
+              >
+                <option value="">Select Icon</option>
+                <option value="SiReact">React</option>
+                <option value="SiNodedotjs">Node.js</option>
+                <option value="SiExpress">Express</option>
+                <option value="SiMongodb">MongoDB</option>
+                <option value="SiJavascript">JavaScript</option>
+                <option value="SiHtml5">HTML5</option>
+                <option value="SiCss3">CSS3</option>
+                <option value="SiTailwindcss">Tailwind CSS</option>
+                <option value="SiGit">Git</option>
+                <option value="SiGithub">GitHub</option>
+              </select>
             </div>
 
             <div className="md:col-span-2">
@@ -285,56 +320,61 @@ const AdminSkills = () => {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {skills.map((skill) => (
-                <div
-                  key={skill._id}
-                  className="rounded-xl border border-slate-800 bg-slate-950 p-5"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        {skill.icon && (
-                          <span className="text-cyan-400">
-                            {skill.icon}
-                          </span>
-                        )}
+              {skills.map((skill) => {
+                const Icon = iconMap[skill.icon];
 
-                        <h3 className="text-lg font-semibold text-white">
-                          {skill.name}
-                        </h3>
+                return (
+                  <div
+                    key={skill._id}
+                    className="rounded-xl border border-slate-800 bg-slate-950 p-5"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          {Icon && (
+                            <Icon
+                              size={28}
+                              className="text-cyan-400"
+                            />
+                          )}
+
+                          <h3 className="text-lg font-semibold text-white">
+                            {skill.name}
+                          </h3>
+                        </div>
+
+                        <p className="mt-2 text-sm text-slate-400">
+                          {skill.category}
+                        </p>
+
+                        <p className="mt-1 text-sm text-cyan-400">
+                          {skill.level}%
+                        </p>
                       </div>
 
-                      <p className="mt-2 text-sm text-slate-400">
-                        {skill.category}
-                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(skill)}
+                          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-cyan-400"
+                        >
+                          <Edit size={18} />
+                        </button>
 
-                      <p className="mt-1 text-sm text-cyan-400">
-                        {skill.level}
-                      </p>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleEdit(skill)}
-                        className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-cyan-400"
-                      >
-                        <Edit size={18} />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleDelete(skill._id)
-                        }
-                        className="rounded-lg p-2 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDelete(skill._id)
+                          }
+                          className="rounded-lg p-2 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
