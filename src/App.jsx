@@ -8,6 +8,7 @@ import AdminSkills from "./pages/AdminSkills";
 import AdminEducation from "./pages/AdminEducation";
 import AdminExperience from "./pages/AdminExperience";
 import AdminMessages from "./pages/AdminMessages";
+import AdminResume from "./pages/AdminResume";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 
@@ -56,6 +57,11 @@ function App() {
           <Route
             path="/admin/messages"
             element={<AdminMessages />}
+          />
+
+          <Route
+            path="/admin/resume"
+            element={<AdminResume />}
           />
         </Route>
       </Route>
