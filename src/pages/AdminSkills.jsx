@@ -80,7 +80,17 @@ const skillOptions = [
   },
 ];
 
-const levelOptions = [50, 60, 70, 75, 80, 85, 90, 95, 100];
+const levelOptions = [
+  50,
+  60,
+  70,
+  75,
+  80,
+  85,
+  90,
+  95,
+  100,
+];
 
 const AdminSkills = () => {
   const [skills, setSkills] = useState([]);
@@ -149,7 +159,9 @@ const AdminSkills = () => {
   const handleLevelChange = (e) => {
     setFormData((prev) => ({
       ...prev,
-      level: Number(e.target.value),
+      level: e.target.value
+        ? Number(e.target.value)
+        : "",
     }));
   };
 
@@ -162,6 +174,7 @@ const AdminSkills = () => {
     });
 
     setEditingId(null);
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -203,7 +216,11 @@ const AdminSkills = () => {
     setFormData({
       name: skill.name || "",
       category: skill.category || "",
-      level: Number(skill.level) || "",
+      level:
+        skill.level !== undefined &&
+        skill.level !== null
+          ? Number(skill.level)
+          : "",
       icon: skill.icon || "",
     });
 
@@ -310,19 +327,40 @@ const AdminSkills = () => {
               </label>
 
               <select
+                name="category"
                 value={formData.category}
-                disabled
-                className="w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-400 outline-none"
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    category: e.target.value,
+                  }))
+                }
+                required
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               >
                 <option value="">
-                  Select Skill First
+                  Select Category
                 </option>
 
-                {formData.category && (
-                  <option value={formData.category}>
-                    {formData.category}
-                  </option>
-                )}
+                <option value="Frontend">
+                  Frontend
+                </option>
+
+                <option value="Backend">
+                  Backend
+                </option>
+
+                <option value="Database">
+                  Database
+                </option>
+
+                <option value="Tools">
+                  Tools
+                </option>
+
+                <option value="Other">
+                  Other
+                </option>
               </select>
             </div>
 
@@ -356,19 +394,60 @@ const AdminSkills = () => {
               </label>
 
               <select
+                name="icon"
                 value={formData.icon}
-                disabled
-                className="w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-400 outline-none"
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    icon: e.target.value,
+                  }))
+                }
+                required
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
               >
                 <option value="">
-                  Select Skill First
+                  Select Icon
                 </option>
 
-                {formData.icon && (
-                  <option value={formData.icon}>
-                    {formData.name}
-                  </option>
-                )}
+                <option value="SiReact">
+                  React
+                </option>
+
+                <option value="SiNodedotjs">
+                  Node.js
+                </option>
+
+                <option value="SiExpress">
+                  Express.js
+                </option>
+
+                <option value="SiMongodb">
+                  MongoDB
+                </option>
+
+                <option value="SiJavascript">
+                  JavaScript
+                </option>
+
+                <option value="SiHtml5">
+                  HTML5
+                </option>
+
+                <option value="SiCss3">
+                  CSS3
+                </option>
+
+                <option value="SiTailwindcss">
+                  Tailwind CSS
+                </option>
+
+                <option value="SiGit">
+                  Git
+                </option>
+
+                <option value="SiGithub">
+                  GitHub
+                </option>
               </select>
             </div>
 
