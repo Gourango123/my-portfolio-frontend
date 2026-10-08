@@ -2,6 +2,7 @@ import { NavLink, Link, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
+  Code2,
   ExternalLink,
   LogOut,
 } from "lucide-react";
@@ -21,6 +22,11 @@ const AdminLayout = () => {
       path: "/admin/projects",
       icon: FolderKanban,
     },
+    {
+      name: "Skills",
+      path: "/admin/skills",
+      icon: Code2,
+    },
   ];
 
   const handleLogout = async () => {
@@ -36,7 +42,7 @@ const AdminLayout = () => {
           </h1>
         </div>
 
-        <nav className="px-4 mt-5">
+        <nav className="mt-5 px-4">
           <div className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;

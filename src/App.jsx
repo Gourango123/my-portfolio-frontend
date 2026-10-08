@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRegister from "./pages/AdminRegister";
 import AdminProjects from "./pages/AdminProjects";
+import AdminSkills from "./pages/AdminSkills";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 
@@ -32,6 +33,11 @@ function App() {
           <Route
             path="/admin/projects"
             element={<AdminProjects />}
+          />
+
+          <Route
+            path="/admin/skills"
+            element={<AdminSkills />}
           />
         </Route>
       </Route>
