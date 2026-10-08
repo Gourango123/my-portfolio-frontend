@@ -2,40 +2,44 @@ import { useEffect, useState } from "react";
 import { Edit, Trash2, X } from "lucide-react";
 import api from "../api/axios";
 
-const AdminSkills = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    level: "",
-    icon: "",
-  });
+const AdminProjects = () => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
 
-  const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [editId, setEditId] = useState(null);
 
-  const fetchSkills = async () => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    image: "",
+    technologies: "",
+    github: "",
+    live: "",
+  });
+
+  const fetchProjects = async () => {
     try {
-      setFetchLoading(true);
+      setLoading(true);
 
-      const response = await api.get("/api/skills");
+      const response = await api.get("/api/projects");
 
-      setSkills(response.data.data || []);
+      setProjects(response.data.data || []);
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Failed to fetch skills"
+          "Failed to load projects"
       );
     } finally {
-      setFetchLoading(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSkills();
+    fetchProjects();
   }, []);
 
   const handleChange = (e) => {
@@ -47,54 +51,61 @@ const AdminSkills = () => {
     }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      image: "",
+      technologies: "",
+      github: "",
+      live: "",
+    });
+
+    setEditingId(null);
+  };
+
   const validateForm = () => {
-    const name = formData.name.trim();
-    const category = formData.category.trim();
-    const level = Number(formData.level);
-    const icon = formData.icon.trim();
+    const title = formData.title.trim();
+    const description = formData.description.trim();
+    const image = formData.image.trim();
+    const technologies = formData.technologies.trim();
+    const github = formData.github.trim();
+    const live = formData.live.trim();
 
-    if (!name) {
-      return "Please select a skill";
+    if (!title) {
+      return "Project title is required";
     }
 
-    if (name.length < 2) {
-      return "Skill name must be at least 2 characters";
+    if (title.length < 2) {
+      return "Project title must be at least 2 characters";
     }
 
-    if (name.length > 50) {
-      return "Skill name must be less than 50 characters";
+    if (title.length > 100) {
+      return "Project title must be less than 100 characters";
     }
 
-    if (!category) {
-      return "Please select a category";
+    if (!description) {
+      return "Project description is required";
     }
 
-    if (category.length < 2) {
-      return "Category must be at least 2 characters";
+    if (description.length < 10) {
+      return "Project description must be at least 10 characters";
     }
 
-    if (category.length > 50) {
-      return "Category must be less than 50 characters";
+    if (!image) {
+      return "Project image URL is required";
     }
 
-    if (formData.level === "") {
-      return "Please select a skill level";
+    if (!technologies) {
+      return "Technologies are required";
     }
 
-    if (!Number.isInteger(level)) {
-      return "Skill level must be a whole number";
+    if (!github) {
+      return "GitHub URL is required";
     }
 
-    if (level < 0 || level > 100) {
-      return "Skill level must be between 0 and 100";
-    }
-
-    if (!icon) {
-      return "Please select an icon";
-    }
-
-    if (icon.length > 50) {
-      return "Icon name must be less than 50 characters";
+    if (!live) {
+      return "Live project URL is required";
     }
 
     return "";
@@ -113,58 +124,66 @@ const AdminSkills = () => {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
+
+    const projectData = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      image: formData.image.trim(),
+      technologies: formData.technologies
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      github: formData.github.trim(),
+      live: formData.live.trim(),
+    };
 
     try {
-      const data = {
-        name: formData.name.trim(),
-        category: formData.category.trim(),
-        level: Number(formData.level),
-        icon: formData.icon.trim(),
-      };
-
-      if (editId) {
+      if (editingId) {
         const response = await api.put(
-          `/api/skills/${editId}`,
-          data
+          `/api/projects/${editingId}`,
+          projectData
         );
 
         setSuccess(
           response.data.message ||
-            "Skill updated successfully"
+            "Project updated successfully"
         );
       } else {
         const response = await api.post(
-          "/api/skills",
-          data
+          "/api/projects",
+          projectData
         );
 
         setSuccess(
           response.data.message ||
-            "Skill created successfully"
+            "Project created successfully"
         );
       }
 
       resetForm();
-      fetchSkills();
+      await fetchProjects();
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Something went wrong"
+          "Failed to save project"
       );
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const handleEdit = (skill) => {
-    setEditId(skill._id);
+  const handleEdit = (project) => {
+    setEditingId(project._id);
 
     setFormData({
-      name: skill.name,
-      category: skill.category,
-      level: String(skill.level),
-      icon: skill.icon || "",
+      title: project.title || "",
+      description: project.description || "",
+      image: project.image || "",
+      technologies:
+        project.technologies?.join(", ") || "",
+      github: project.github || "",
+      live: project.live || "",
     });
 
     setError("");
@@ -178,48 +197,40 @@ const AdminSkills = () => {
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this skill?"
+      "Are you sure you want to delete this project?"
     );
 
     if (!confirmDelete) {
       return;
     }
 
-    try {
-      setError("");
-      setSuccess("");
+    setDeletingId(id);
+    setError("");
+    setSuccess("");
 
+    try {
       const response = await api.delete(
-        `/api/skills/${id}`
+        `/api/projects/${id}`
       );
 
       setSuccess(
         response.data.message ||
-          "Skill deleted successfully"
+          "Project deleted successfully"
       );
 
-      if (editId === id) {
+      if (editingId === id) {
         resetForm();
       }
 
-      fetchSkills();
+      await fetchProjects();
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Failed to delete skill"
+          "Failed to delete project"
       );
+    } finally {
+      setDeletingId(null);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      category: "",
-      level: "",
-      icon: "",
-    });
-
-    setEditId(null);
   };
 
   const handleCancelEdit = () => {
@@ -230,32 +241,34 @@ const AdminSkills = () => {
 
   return (
     <section className="min-h-screen bg-slate-950 px-6 py-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">
-            Skills Management
+            Projects Management
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Add, edit and manage your portfolio skills
+            Add, edit and manage your portfolio projects
           </p>
         </div>
 
         <div className="mb-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-2xl font-bold text-white">
-                {editId ? "Edit Skill" : "Add Skill"}
+                {editingId
+                  ? "Edit Project"
+                  : "Add Project"}
               </h2>
 
               <p className="mt-1 text-sm text-slate-400">
-                {editId
-                  ? "Update your skill information"
-                  : "Add a new skill to your portfolio"}
+                {editingId
+                  ? "Update your project information"
+                  : "Add a new project to your portfolio"}
               </p>
             </div>
 
-            {editId && (
+            {editingId && (
               <button
                 type="button"
                 onClick={handleCancelEdit}
@@ -273,151 +286,111 @@ const AdminSkills = () => {
           >
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Skill
+                Project Title
               </label>
 
-              <select
-                name="name"
-                value={formData.name}
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
+                placeholder="Enter project title"
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              >
-                <option value="">
-                  Select Skill
-                </option>
-
-                <option value="React">React</option>
-                <option value="JavaScript">
-                  JavaScript
-                </option>
-                <option value="HTML5">HTML5</option>
-                <option value="CSS3">CSS3</option>
-                <option value="Tailwind CSS">
-                  Tailwind CSS
-                </option>
-                <option value="Node.js">Node.js</option>
-                <option value="Express.js">
-                  Express.js
-                </option>
-                <option value="MongoDB">MongoDB</option>
-                <option value="Git">Git</option>
-                <option value="GitHub">GitHub</option>
-              </select>
+              />
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Category
+                Image URL
               </label>
 
-              <select
-                name="category"
-                value={formData.category}
+              <input
+                type="url"
+                name="image"
+                value={formData.image}
                 onChange={handleChange}
+                placeholder="https://example.com/image.jpg"
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              >
-                <option value="">
-                  Select Category
-                </option>
+              />
+            </div>
 
-                <option value="Frontend">
-                  Frontend
-                </option>
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm text-slate-300">
+                Description
+              </label>
 
-                <option value="Backend">
-                  Backend
-                </option>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter project description"
+                rows="5"
+                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
+              />
+            </div>
 
-                <option value="Database">
-                  Database
-                </option>
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm text-slate-300">
+                Technologies
+              </label>
 
-                <option value="Tools">
-                  Tools
-                </option>
+              <input
+                type="text"
+                name="technologies"
+                value={formData.technologies}
+                onChange={handleChange}
+                placeholder="React, Node.js, MongoDB"
+                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
+              />
 
-                <option value="Other">
-                  Other
-                </option>
-              </select>
+              <p className="mt-2 text-xs text-slate-500">
+                Separate technologies with commas
+              </p>
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Level
+                GitHub URL
               </label>
 
-              <select
-                name="level"
-                value={formData.level}
+              <input
+                type="url"
+                name="github"
+                value={formData.github}
                 onChange={handleChange}
+                placeholder="https://github.com/..."
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              >
-                <option value="">
-                  Select Level
-                </option>
-
-                <option value="50">50%</option>
-                <option value="60">60%</option>
-                <option value="70">70%</option>
-                <option value="75">75%</option>
-                <option value="80">80%</option>
-                <option value="85">85%</option>
-                <option value="90">90%</option>
-                <option value="95">95%</option>
-                <option value="100">100%</option>
-              </select>
+              />
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Icon
+                Live URL
               </label>
 
-              <select
-                name="icon"
-                value={formData.icon}
+              <input
+                type="url"
+                name="live"
+                value={formData.live}
                 onChange={handleChange}
+                placeholder="https://example.com"
                 className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
-              >
-                <option value="">
-                  Select Icon
-                </option>
-
-                <option value="React">React</option>
-                <option value="Node">Node.js</option>
-                <option value="Express">
-                  Express.js
-                </option>
-                <option value="MongoDB">
-                  MongoDB
-                </option>
-                <option value="JavaScript">
-                  JavaScript
-                </option>
-                <option value="HTML">HTML5</option>
-                <option value="CSS">CSS3</option>
-                <option value="Tailwind">
-                  Tailwind CSS
-                </option>
-                <option value="Git">Git</option>
-                <option value="GitHub">GitHub</option>
-              </select>
+              />
             </div>
 
             <div className="md:col-span-2">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={submitting}
                 className="w-full rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading
-                  ? editId
+                {submitting
+                  ? editingId
                     ? "Updating..."
                     : "Adding..."
-                  : editId
-                  ? "Update Skill"
-                  : "Add Skill"}
+                  : editingId
+                  ? "Update Project"
+                  : "Add Project"}
               </button>
             </div>
           </form>
@@ -439,42 +412,42 @@ const AdminSkills = () => {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white">
-                All Skills
+                All Projects
               </h2>
 
               <p className="mt-1 text-sm text-slate-400">
-                Total skills: {skills.length}
+                Total projects: {projects.length}
               </p>
             </div>
           </div>
 
-          {fetchLoading ? (
+          {loading ? (
             <div className="py-10 text-center text-cyan-400">
-              Loading skills...
+              Loading projects...
             </div>
-          ) : skills.length === 0 ? (
+          ) : projects.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-700 py-10 text-center text-slate-400">
-              No skills found
+              No projects found
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px]">
+              <table className="w-full min-w-[1000px]">
                 <thead>
                   <tr className="border-b border-slate-800 text-left">
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Skill
+                      Project
                     </th>
 
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Category
+                      Description
                     </th>
 
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Level
+                      Technologies
                     </th>
 
                     <th className="px-4 py-4 text-sm font-medium text-slate-400">
-                      Icon
+                      Links
                     </th>
 
                     <th className="px-4 py-4 text-right text-sm font-medium text-slate-400">
@@ -484,38 +457,68 @@ const AdminSkills = () => {
                 </thead>
 
                 <tbody>
-                  {skills.map((skill) => (
+                  {projects.map((project) => (
                     <tr
-                      key={skill._id}
+                      key={project._id}
                       className="border-b border-slate-800/70 transition hover:bg-slate-800/40"
                     >
-                      <td className="px-4 py-4 font-medium text-white">
-                        {skill.name}
-                      </td>
-
-                      <td className="px-4 py-4 text-slate-300">
-                        {skill.category}
-                      </td>
-
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-700">
-                            <div
-                              className="h-full rounded-full bg-cyan-400"
-                              style={{
-                                width: `${skill.level}%`,
-                              }}
-                            />
-                          </div>
+                          <img
+                            src={project.image}
+                            alt={project.title}
+                            className="h-14 w-20 rounded-lg object-cover"
+                          />
 
-                          <span className="text-sm text-cyan-400">
-                            {skill.level}%
-                          </span>
+                          <div>
+                            <p className="font-semibold text-white">
+                              {project.title}
+                            </p>
+                          </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-4 text-slate-300">
-                        {skill.icon || "N/A"}
+                      <td className="max-w-xs px-4 py-4">
+                        <p className="line-clamp-3 text-sm text-slate-400">
+                          {project.description}
+                        </p>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="flex max-w-xs flex-wrap gap-2">
+                          {project.technologies?.map(
+                            (technology, index) => (
+                              <span
+                                key={index}
+                                className="rounded-full bg-slate-800 px-3 py-1 text-xs text-cyan-400"
+                              >
+                                {technology}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col gap-2">
+                          <a
+                            href={project.github}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm text-cyan-400 hover:text-cyan-300"
+                          >
+                            GitHub
+                          </a>
+
+                          <a
+                            href={project.live}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm text-green-400 hover:text-green-300"
+                          >
+                            Live
+                          </a>
+                        </div>
                       </td>
 
                       <td className="px-4 py-4">
@@ -523,7 +526,7 @@ const AdminSkills = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              handleEdit(skill)
+                              handleEdit(project)
                             }
                             className="rounded-lg p-2 text-cyan-400 transition hover:bg-cyan-400/10"
                             title="Edit"
@@ -534,9 +537,12 @@ const AdminSkills = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              handleDelete(skill._id)
+                              handleDelete(project._id)
                             }
-                            className="rounded-lg p-2 text-red-400 transition hover:bg-red-400/10"
+                            disabled={
+                              deletingId === project._id
+                            }
+                            className="rounded-lg p-2 text-red-400 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
                             title="Delete"
                           >
                             <Trash2 size={18} />
@@ -555,4 +561,4 @@ const AdminSkills = () => {
   );
 };
 
-export default AdminSkills;
+export default AdminProjects;
