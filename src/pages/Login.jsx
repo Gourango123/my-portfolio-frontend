@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -14,7 +14,30 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [adminExists, setAdminExists] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const response = await api.get("/api/admin/check");
+
+        setAdminExists(response.data.exists);
+      } catch (error) {
+        console.error(
+          "Check admin error:",
+          error.response?.data || error.message
+        );
+
+        setAdminExists(true);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+
+    checkAdmin();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,19 +50,24 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+
     setLoading(true);
     setError("");
 
     try {
-      const response = await api.post("/api/admin/login", formData);
+      const response = await api.post(
+        "/api/admin/login",
+        formData
+      );
 
       setAccessToken(response.data.accessToken);
       setUser(response.data.admin);
 
       navigate("/admin/dashboard");
     } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
+      setError(
+        error.response?.data?.message || "Login failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -52,13 +80,22 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8"
       >
-        <h1 className="text-3xl font-bold text-white">Admin Login</h1>
+        <h1 className="text-3xl font-bold text-white">
+          Admin Login
+        </h1>
 
-        <p className="mt-2 text-slate-400">Login to manage your portfolio</p>
+        <p className="mt-2 text-slate-400">
+          Login to manage your portfolio
+        </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 space-y-5"
+        >
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Email</label>
+            <label className="mb-2 block text-sm text-slate-300">
+              Email
+            </label>
 
             <input
               type="email"
@@ -87,7 +124,11 @@ const Login = () => {
             />
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && (
+            <p className="text-sm text-red-400">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
@@ -96,19 +137,23 @@ const Login = () => {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-          <div className="mt-6 text-center">
-            <p className="text-sm text-slate-500">
-              Don't have an admin account?
-            </p>
 
-            <button
-              type="button"
-              onClick={() => navigate("/admin/register")}
-              className="mt-2 text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
-            >
-              Create Admin Account
-            </button>
-          </div>
+          {!checkingAdmin && !adminExists && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-slate-500">
+                No admin account exists yet.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => navigate("/admin/register")}
+                className="mt-2 text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
+              >
+                Create Admin Account
+              </button>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => navigate("/")}
