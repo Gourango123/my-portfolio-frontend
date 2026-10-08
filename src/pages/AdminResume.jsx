@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
-import { FileText, Trash2, Upload, ExternalLink } from "lucide-react";
+import {
+  FileText,
+  Trash2,
+  Upload,
+  ExternalLink,
+} from "lucide-react";
 import api from "../api/axios";
 
 const AdminResume = () => {
   const [resume, setResume] = useState(null);
   const [file, setFile] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -136,13 +143,9 @@ const AdminResume = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-10">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen bg-slate-950 p-6 text-white md:p-10">
+      <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-cyan-400">
-            Admin Panel
-          </p>
-
           <h1 className="text-3xl font-bold text-white">
             Resume
           </h1>
@@ -164,14 +167,14 @@ const AdminResume = () => {
           </div>
         )}
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 md:p-8">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400">
-              <Upload size={22} />
+            <div className="rounded-xl bg-cyan-400/10 p-3">
+              <Upload className="text-cyan-400" size={24} />
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-semibold">
                 Upload Resume
               </h2>
 
@@ -181,32 +184,27 @@ const AdminResume = () => {
             </div>
           </div>
 
-          <form
-            onSubmit={handleUpload}
-            className="space-y-5"
-          >
+          <form onSubmit={handleUpload}>
             <input
               type="file"
               accept="application/pdf"
               onChange={handleFileChange}
-              className="block w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:font-medium file:text-slate-950"
+              className="block w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:font-medium file:text-slate-950"
             />
 
             {file && (
-              <p className="text-sm text-slate-400">
-                Selected:{" "}
-                <span className="text-cyan-400">
-                  {file.name}
-                </span>
+              <p className="mt-3 text-sm text-slate-400">
+                Selected: {file.name}
               </p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-5 flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Upload size={18} />
+
               {loading
                 ? "Uploading..."
                 : "Upload Resume"}
@@ -214,63 +212,74 @@ const AdminResume = () => {
           </form>
         </div>
 
-        {resume && (
-          <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6 md:p-8">
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+        <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 className="mb-6 text-xl font-semibold">
+            Current Resume
+          </h2>
+
+          {resume ? (
+            <div className="flex flex-col gap-5 rounded-xl border border-slate-800 bg-slate-950 p-5 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-red-500/10 text-red-400">
-                  <FileText size={26} />
+                <div className="rounded-xl bg-red-500/10 p-3">
+                  <FileText
+                    className="text-red-400"
+                    size={28}
+                  />
                 </div>
 
                 <div>
-                  <h2 className="font-semibold text-white">
+                  <h3 className="font-medium text-white">
                     {resume.name}
-                  </h2>
+                  </h3>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Uploaded{" "}
-                    {new Date(
-                      resume.createdAt
-                    ).toLocaleString()}
+                    Resume PDF
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <a
                   href={resume.url}
                   target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:border-cyan-400 hover:text-cyan-400"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-slate-300 transition hover:border-cyan-400 hover:text-cyan-400"
                 >
-                  <ExternalLink size={17} />
+                  <ExternalLink size={18} />
                   View
+                </a>
+
+                <a
+                  href={resume.url}
+                  download={resume.name}
+                  className="flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 font-medium text-slate-950 transition hover:bg-cyan-300"
+                >
+                  <FileText size={18} />
+                  Download
                 </a>
 
                 <button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500/10"
+                  className="flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-2 text-red-400 transition hover:bg-red-500/20"
                 >
-                  <Trash2 size={17} />
+                  <Trash2 size={18} />
                   Delete
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="rounded-xl border border-dashed border-slate-700 p-10 text-center">
+              <FileText
+                className="mx-auto mb-4 text-slate-600"
+                size={40}
+              />
 
-        {!resume && (
-          <div className="mt-8 rounded-2xl border border-dashed border-slate-800 bg-slate-900 p-10 text-center">
-            <FileText
-              size={40}
-              className="mx-auto mb-4 text-slate-600"
-            />
-
-            <p className="text-slate-400">
-              No resume uploaded yet.
-            </p>
-          </div>
-        )}
+              <p className="text-slate-400">
+                No resume uploaded yet.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
