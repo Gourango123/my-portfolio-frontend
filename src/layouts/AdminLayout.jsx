@@ -5,6 +5,7 @@ import {
   Code2,
   BriefcaseBusiness,
   GraduationCap,
+  Mail,
   ExternalLink,
   LogOut,
 } from "lucide-react";
@@ -38,6 +39,11 @@ const AdminLayout = () => {
       name: "Education",
       path: "/admin/education",
       icon: GraduationCap,
+    },
+    {
+      name: "Messages",
+      path: "/admin/messages",
+      icon: Mail,
     },
   ];
 
