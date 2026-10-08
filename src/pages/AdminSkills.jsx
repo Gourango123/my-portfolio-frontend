@@ -27,6 +27,61 @@ const iconMap = {
   SiGithub,
 };
 
+const skillOptions = [
+  {
+    name: "React",
+    category: "Frontend",
+    icon: "SiReact",
+  },
+  {
+    name: "JavaScript",
+    category: "Frontend",
+    icon: "SiJavascript",
+  },
+  {
+    name: "HTML5",
+    category: "Frontend",
+    icon: "SiHtml5",
+  },
+  {
+    name: "CSS3",
+    category: "Frontend",
+    icon: "SiCss3",
+  },
+  {
+    name: "Tailwind CSS",
+    category: "Frontend",
+    icon: "SiTailwindcss",
+  },
+  {
+    name: "Node.js",
+    category: "Backend",
+    icon: "SiNodedotjs",
+  },
+  {
+    name: "Express.js",
+    category: "Backend",
+    icon: "SiExpress",
+  },
+  {
+    name: "MongoDB",
+    category: "Database",
+    icon: "SiMongodb",
+  },
+  {
+    name: "Git",
+    category: "Tools",
+    icon: "SiGit",
+  },
+  {
+    name: "GitHub",
+    category: "Tools",
+    icon: "SiGithub",
+  },
+];
+
+const levelOptions = [50, 60, 70, 75, 80, 85, 90, 95, 100];
+
 const AdminSkills = () => {
   const [skills, setSkills] = useState([]);
 
@@ -65,12 +120,36 @@ const AdminSkills = () => {
     fetchSkills();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleSkillChange = (e) => {
+    const selectedName = e.target.value;
+
+    const selectedSkill = skillOptions.find(
+      (skill) => skill.name === selectedName
+    );
+
+    if (!selectedSkill) {
+      setFormData({
+        name: "",
+        category: "",
+        level: "",
+        icon: "",
+      });
+
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      name: selectedSkill.name,
+      category: selectedSkill.category,
+      icon: selectedSkill.icon,
+    }));
+  };
+
+  const handleLevelChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      level: Number(e.target.value),
     }));
   };
 
@@ -124,7 +203,7 @@ const AdminSkills = () => {
     setFormData({
       name: skill.name || "",
       category: skill.category || "",
-      level: skill.level || "",
+      level: Number(skill.level) || "",
       icon: skill.icon || "",
     });
 
@@ -203,15 +282,26 @@ const AdminSkills = () => {
                 Skill Name
               </label>
 
-              <input
-                type="text"
+              <select
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleSkillChange}
                 required
-                placeholder="React"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              />
+              >
+                <option value="">
+                  Select Skill
+                </option>
+
+                {skillOptions.map((skill) => (
+                  <option
+                    key={skill.name}
+                    value={skill.name}
+                  >
+                    {skill.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -219,31 +309,45 @@ const AdminSkills = () => {
                 Category
               </label>
 
-              <input
-                type="text"
-                name="category"
+              <select
                 value={formData.category}
-                onChange={handleChange}
-                required
-                placeholder="Frontend"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              />
+                disabled
+                className="w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-400 outline-none"
+              >
+                <option value="">
+                  Select Skill First
+                </option>
+
+                {formData.category && (
+                  <option value={formData.category}>
+                    {formData.category}
+                  </option>
+                )}
+              </select>
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">
-                Level
+                Skill Level
               </label>
 
-              <input
-                type="text"
+              <select
                 name="level"
                 value={formData.level}
-                onChange={handleChange}
+                onChange={handleLevelChange}
                 required
-                placeholder="80"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
-              />
+              >
+                <option value="">
+                  Select Level
+                </option>
+
+                {levelOptions.map((level) => (
+                  <option key={level} value={level}>
+                    {level}%
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -252,22 +356,19 @@ const AdminSkills = () => {
               </label>
 
               <select
-                name="icon"
                 value={formData.icon}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                disabled
+                className="w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-400 outline-none"
               >
-                <option value="">Select Icon</option>
-                <option value="SiReact">React</option>
-                <option value="SiNodedotjs">Node.js</option>
-                <option value="SiExpress">Express</option>
-                <option value="SiMongodb">MongoDB</option>
-                <option value="SiJavascript">JavaScript</option>
-                <option value="SiHtml5">HTML5</option>
-                <option value="SiCss3">CSS3</option>
-                <option value="SiTailwindcss">Tailwind CSS</option>
-                <option value="SiGit">Git</option>
-                <option value="SiGithub">GitHub</option>
+                <option value="">
+                  Select Skill First
+                </option>
+
+                {formData.icon && (
+                  <option value={formData.icon}>
+                    {formData.name}
+                  </option>
+                )}
               </select>
             </div>
 
@@ -329,12 +430,12 @@ const AdminSkills = () => {
                     className="rounded-xl border border-slate-800 bg-slate-950 p-5"
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-3">
                           {Icon && (
                             <Icon
                               size={28}
-                              className="text-cyan-400"
+                              className="shrink-0 text-cyan-400"
                             />
                           )}
 
@@ -347,9 +448,26 @@ const AdminSkills = () => {
                           {skill.category}
                         </p>
 
-                        <p className="mt-1 text-sm text-cyan-400">
-                          {skill.level}%
-                        </p>
+                        <div className="mt-3">
+                          <div className="mb-1 flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              Skill Level
+                            </span>
+
+                            <span className="text-sm font-medium text-cyan-400">
+                              {skill.level}%
+                            </span>
+                          </div>
+
+                          <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                            <div
+                              className="h-full rounded-full bg-cyan-400 transition-all"
+                              style={{
+                                width: `${skill.level}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
 
                       <div className="flex gap-2">
