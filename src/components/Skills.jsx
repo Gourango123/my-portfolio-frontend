@@ -13,7 +13,7 @@ const Skills = () => {
       try {
         const response = await api.get("/api/skills");
 
-        setSkills(response.data.data);
+        setSkills(response.data.data || []);
       } catch (error) {
         setError(
           error.response?.data?.message || "Failed to load skills"
@@ -31,6 +31,7 @@ const Skills = () => {
     Backend: <Server size={24} />,
     Database: <Database size={24} />,
     Tools: <Wrench size={24} />,
+    Other: <Wrench size={24} />,
   };
 
   const skillCategories = Object.entries(
@@ -46,7 +47,10 @@ const Skills = () => {
   );
 
   return (
-    <section id="skills" className="bg-slate-950 px-6 py-24">
+    <section
+      id="skills"
+      className="bg-slate-950 px-6 py-24"
+    >
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -90,58 +94,64 @@ const Skills = () => {
 
         {!loading && !error && skills.length > 0 && (
           <div className="mt-16 grid gap-6 md:grid-cols-2">
-            {skillCategories.map(([category, categorySkills], index) => (
-              <motion.div
-                key={category}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.1,
-                }}
-                className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
-              >
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400">
-                    {categoryIcons[category]}
+            {skillCategories.map(
+              ([category, categorySkills], index) => (
+                <motion.div
+                  key={category}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.1,
+                  }}
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
+                >
+                  <div className="mb-6 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-400">
+                      {categoryIcons[category] || (
+                        <Code2 size={24} />
+                      )}
+                    </div>
+
+                    <h3 className="text-xl font-semibold text-white">
+                      {category}
+                    </h3>
                   </div>
 
-                  <h3 className="text-xl font-semibold text-white">
-                    {category}
-                  </h3>
-                </div>
+                  <div className="space-y-5">
+                    {categorySkills.map((skill) => (
+                      <div key={skill._id}>
+                        <div className="mb-2 flex justify-between">
+                          <span className="text-sm font-medium text-slate-300">
+                            {skill.name}
+                          </span>
 
-                <div className="space-y-5">
-                  {categorySkills.map((skill) => (
-                    <div key={skill._id}>
-                      <div className="mb-2 flex justify-between">
-                        <span className="text-sm font-medium text-slate-300">
-                          {skill.name}
-                        </span>
+                          <span className="text-sm text-cyan-400">
+                            {skill.level}%
+                          </span>
+                        </div>
 
-                        <span className="text-sm text-cyan-400">
-                          {skill.level}
-                        </span>
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{
+                              width: `${skill.level}%`,
+                            }}
+                            viewport={{ once: true }}
+                            transition={{
+                              duration: 1,
+                              ease: "easeOut",
+                            }}
+                            className="h-full rounded-full bg-cyan-400"
+                          />
+                        </div>
                       </div>
-
-                      <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: skill.level }}
-                          viewport={{ once: true }}
-                          transition={{
-                            duration: 1,
-                            ease: "easeOut",
-                          }}
-                          className="h-full rounded-full bg-cyan-400"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+                    ))}
+                  </div>
+                </motion.div>
+              )
+            )}
           </div>
         )}
       </div>
