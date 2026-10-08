@@ -52,7 +52,28 @@ const AdminAbout = () => {
           features:
             about.features?.length === 4
               ? about.features
-              : formData.features,
+              : [
+                  {
+                    icon: "Code2",
+                    title: "",
+                    description: "",
+                  },
+                  {
+                    icon: "Server",
+                    title: "",
+                    description: "",
+                  },
+                  {
+                    icon: "Database",
+                    title: "",
+                    description: "",
+                  },
+                  {
+                    icon: "Rocket",
+                    title: "",
+                    description: "",
+                  },
+                ],
         });
       } catch (error) {
         if (error.response?.status !== 404) {
@@ -78,16 +99,21 @@ const AdminAbout = () => {
     }));
   };
 
-  const handleFeatureChange = (index, field, value) => {
+  const handleFeatureChange = (
+    index,
+    field,
+    value
+  ) => {
     setFormData((prev) => ({
       ...prev,
-      features: prev.features.map((feature, featureIndex) =>
-        featureIndex === index
-          ? {
-              ...feature,
-              [field]: value,
-            }
-          : feature
+      features: prev.features.map(
+        (feature, featureIndex) =>
+          featureIndex === index
+            ? {
+                ...feature,
+                [field]: value,
+              }
+            : feature
       ),
     }));
   };
@@ -100,22 +126,42 @@ const AdminAbout = () => {
     setSuccess("");
 
     try {
-      const response = await api.put(
-        "/api/about",
-        formData
-      );
+      let response;
+
+      try {
+        await api.get("/api/about");
+
+        response = await api.put(
+          "/api/about",
+          formData
+        );
+
+        setSuccess(
+          response.data.message ||
+            "About section updated successfully"
+        );
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          throw error;
+        }
+
+        response = await api.post(
+          "/api/about",
+          formData
+        );
+
+        setSuccess(
+          response.data.message ||
+            "About section created successfully"
+        );
+      }
 
       setFormData(response.data.data);
-
-      setSuccess(
-        response.data.message ||
-          "About section updated successfully"
-      );
     } catch (error) {
       setError(
         error.response?.data?.errors?.join(", ") ||
           error.response?.data?.message ||
-          "Failed to update about section"
+          "Failed to save about section"
       );
     } finally {
       setSaving(false);
