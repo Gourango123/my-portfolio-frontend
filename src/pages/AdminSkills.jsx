@@ -22,19 +22,80 @@ const AdminSkills = () => {
     }));
   };
 
+  const validateForm = () => {
+    const name = formData.name.trim();
+    const category = formData.category.trim();
+    const level = Number(formData.level);
+    const icon = formData.icon.trim();
+
+    if (!name) {
+      return "Please select a skill";
+    }
+
+    if (name.length < 2) {
+      return "Skill name must be at least 2 characters";
+    }
+
+    if (name.length > 50) {
+      return "Skill name must be less than 50 characters";
+    }
+
+    if (!category) {
+      return "Please select a category";
+    }
+
+    if (category.length < 2) {
+      return "Category must be at least 2 characters";
+    }
+
+    if (category.length > 50) {
+      return "Category must be less than 50 characters";
+    }
+
+    if (formData.level === "") {
+      return "Please select a skill level";
+    }
+
+    if (!Number.isInteger(level)) {
+      return "Skill level must be a whole number";
+    }
+
+    if (level < 0 || level > 100) {
+      return "Skill level must be between 0 and 100";
+    }
+
+    if (!icon) {
+      return "Please select an icon";
+    }
+
+    if (icon.length > 50) {
+      return "Icon name must be less than 50 characters";
+    }
+
+    return "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
     setError("");
     setSuccess("");
 
+    const validationError = validateForm();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const data = {
-        name: formData.name,
-        category: formData.category,
+        name: formData.name.trim(),
+        category: formData.category.trim(),
         level: Number(formData.level),
-        icon: formData.icon,
+        icon: formData.icon.trim(),
       };
 
       const response = await api.post(
@@ -66,9 +127,7 @@ const AdminSkills = () => {
   return (
     <section className="min-h-screen bg-slate-950 px-6 py-10">
       <div className="mx-auto max-w-2xl">
-
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-
           <h1 className="mb-2 text-2xl font-bold text-white">
             Add Skill
           </h1>
@@ -81,7 +140,6 @@ const AdminSkills = () => {
             onSubmit={handleSubmit}
             className="space-y-5"
           >
-
             <div>
               <label className="mb-2 block text-sm text-slate-300">
                 Skill
@@ -91,8 +149,7 @@ const AdminSkills = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                required
-                className="w-full rounded-xl bg-white px-4 py-3 text-black"
+                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">
                   Select Skill
@@ -149,8 +206,7 @@ const AdminSkills = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                required
-                className="w-full rounded-xl bg-white px-4 py-3 text-black"
+                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">
                   Select Category
@@ -187,8 +243,7 @@ const AdminSkills = () => {
                 name="level"
                 value={formData.level}
                 onChange={handleChange}
-                required
-                className="w-full rounded-xl bg-white px-4 py-3 text-black"
+                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">
                   Select Level
@@ -241,50 +296,49 @@ const AdminSkills = () => {
                 name="icon"
                 value={formData.icon}
                 onChange={handleChange}
-                required
-                className="w-full rounded-xl bg-white px-4 py-3 text-black"
+                className="w-full rounded-xl bg-white px-4 py-3 text-black outline-none focus:ring-2 focus:ring-cyan-400"
               >
                 <option value="">
                   Select Icon
                 </option>
 
-                <option value="SiReact">
+                <option value="React">
                   React
                 </option>
 
-                <option value="SiNodedotjs">
+                <option value="Node">
                   Node.js
                 </option>
 
-                <option value="SiExpress">
+                <option value="Express">
                   Express.js
                 </option>
 
-                <option value="SiMongodb">
+                <option value="MongoDB">
                   MongoDB
                 </option>
 
-                <option value="SiJavascript">
+                <option value="JavaScript">
                   JavaScript
                 </option>
 
-                <option value="SiHtml5">
+                <option value="HTML">
                   HTML5
                 </option>
 
-                <option value="SiCss3">
+                <option value="CSS">
                   CSS3
                 </option>
 
-                <option value="SiTailwindcss">
+                <option value="Tailwind">
                   Tailwind CSS
                 </option>
 
-                <option value="SiGit">
+                <option value="Git">
                   Git
                 </option>
 
-                <option value="SiGithub">
+                <option value="GitHub">
                   GitHub
                 </option>
               </select>
@@ -295,27 +349,22 @@ const AdminSkills = () => {
               disabled={loading}
               className="w-full rounded-xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading
-                ? "Adding..."
-                : "Add Skill"}
+              {loading ? "Adding..." : "Add Skill"}
             </button>
-
           </form>
 
           {error && (
-            <p className="mt-5 rounded-lg bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
               {error}
-            </p>
+            </div>
           )}
 
           {success && (
-            <p className="mt-5 rounded-lg bg-green-500/10 p-3 text-sm text-green-400">
+            <div className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-400">
               {success}
-            </p>
+            </div>
           )}
-
         </div>
-
       </div>
     </section>
   );
