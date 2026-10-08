@@ -17,6 +17,10 @@ const AdminResume = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const resumeDownloadUrl = `${
+    import.meta.env.VITE_API_URL
+  }/api/resume/download`;
+
   const fetchResume = async () => {
     try {
       const response = await api.get("/api/resume");
@@ -170,7 +174,10 @@ const AdminResume = () => {
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <div className="mb-6 flex items-center gap-3">
             <div className="rounded-xl bg-cyan-400/10 p-3">
-              <Upload className="text-cyan-400" size={24} />
+              <Upload
+                className="text-cyan-400"
+                size={24}
+              />
             </div>
 
             <div>
@@ -240,7 +247,7 @@ const AdminResume = () => {
 
               <div className="flex flex-wrap gap-3">
                 <a
-                  href={resume.url}
+                  href={resumeDownloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-slate-300 transition hover:border-cyan-400 hover:text-cyan-400"
@@ -250,8 +257,7 @@ const AdminResume = () => {
                 </a>
 
                 <a
-                  href={resume.url}
-                  download={resume.name}
+                  href={resumeDownloadUrl}
                   className="flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 font-medium text-slate-950 transition hover:bg-cyan-300"
                 >
                   <FileText size={18} />
